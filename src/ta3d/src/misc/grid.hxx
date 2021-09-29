@@ -3,6 +3,7 @@
 
 #include "grid.h"
 #include <algorithm>
+#include <cmath>
 
 namespace TA3D
 {

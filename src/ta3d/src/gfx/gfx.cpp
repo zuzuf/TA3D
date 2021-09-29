@@ -412,6 +412,8 @@ namespace TA3D
             format.setAlphaBufferSize(0);
         }
         format.setDepthBufferSize(24);
+        format.setProfile(QSurfaceFormat::CompatibilityProfile);
+        format.setVersion(2,0);
         setFormat(format);
 
         const QSize wnd_size(TA3D::VARS::lp_CONFIG->screen_width,
@@ -539,6 +541,8 @@ namespace TA3D
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
 		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
+        m_context = nullptr;
+
         gfx = this;
 
         initialize();

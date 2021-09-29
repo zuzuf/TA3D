@@ -62,7 +62,7 @@ namespace TA3D
 		{
 			if (used == 0U)
 				throw std::invalid_argument(std::string("MemoryPool::release has no slot in use"));
-			operator delete (p, NULL);
+			operator delete (p, nullptr);
 			unused[--used] = p;
 		}
 

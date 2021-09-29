@@ -35,6 +35,7 @@
 #include <gfx/gl.extensions.h>
 #include "textures.h"
 #include <misc/timer.h>
+#include <algorithm>
 
 namespace TA3D
 {
@@ -708,8 +709,8 @@ namespace TA3D
 					dhx = dhy = 0.0f;
 				else
 				{
-					dhx = float(d_h * abs(d_h0)) / l;
-					dhy = float(d_h * abs(d_h1)) / l;
+					dhx = float(d_h * std::abs(d_h0)) / l;
+					dhy = float(d_h * std::abs(d_h1)) / l;
 				}
 				points[(y << 3) + x].y = (points[(y << 3) + x - 1].y + dhx + points[((y - 1) << 3) + x].y + dhy) * 0.5f;
 			}
@@ -900,7 +901,7 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-                    const int var = abs(0xFF - (msectimer() % 1000) * 0x200 / 1000);
+                    const int var = std::abs(int(0xFF - (msectimer() % 1000) * 0x200 / 1000));
 					glColor3ub(0, GLubyte(var), 0);
 				}
 				else

@@ -4,7 +4,7 @@
 #include "object.h"
 #include <TA3D_NameSpace.h>
 #include <misc/math.h>
-
+#include <ostream>
 
 
 

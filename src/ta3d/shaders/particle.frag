@@ -1,3 +1,4 @@
+#version 120
 uniform sampler2D uTex;
 uniform lowp vec4 uColor;
 

@@ -25,6 +25,7 @@
 #include <misc/paths.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <ostream>
 
 #define FIX_COLOR(col)  col = makeacol(getb(col), getg(col), getr(col), getr(col))
 

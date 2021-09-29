@@ -15,13 +15,13 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#include <QtEndian>
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
 #include <misc/math.h>
 #include <misc/paths.h>
 #include <logs/logs.h>
 #include <QFile>
-#include <QtEndian>
 
 namespace TA3D
 {
