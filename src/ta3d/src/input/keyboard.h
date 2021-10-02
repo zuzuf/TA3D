@@ -61,7 +61,7 @@ namespace TA3D
 	/*!
 	** \brief set a key down
 	*/
-    void set_key_down(int key);
+    void set_key_down(int key, const QString &text);
 
     /*!
     ** \brief returns true if the given key state has changed to down since last call with the same key
@@ -173,7 +173,10 @@ enum KeyCode
     KEY_RCONTROL = KEY_LCONTROL,
     KEY_PLUS_PAD = KEY_PLUS,
     KEY_MINUS_PAD = KEY_MINUS,
-    KEY_ENTER_PAD = KEY_ENTER
+    KEY_ENTER_PAD = KEY_ENTER,
+
+    // Modifiers
+    KEY_MOD_UPPER_CASE = 0x10000
 };
 
 #endif

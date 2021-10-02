@@ -33,7 +33,8 @@ namespace TA3D
         bool                    prevkey_up[256];
 		std::deque<uint32>      keybuf;
         QHash<int, uint16>      qt2Keycode;
-	}
+        QHash<QString, uint32>  text2modifier;
+    }
 
 
 	uint32 readkey()
@@ -203,11 +204,40 @@ namespace TA3D
 		ascii_to_scancode[int(' ')] = KEY_SPACE;
 		ascii_to_scancode[int('\n')] = KEY_ENTER;
 		ascii_to_scancode[27] = KEY_ESC;
-	}
+
+        // Modifiers
+        text2modifier["A"] = KEY_MOD_UPPER_CASE;
+        text2modifier["B"] = KEY_MOD_UPPER_CASE;
+        text2modifier["C"] = KEY_MOD_UPPER_CASE;
+        text2modifier["D"] = KEY_MOD_UPPER_CASE;
+        text2modifier["E"] = KEY_MOD_UPPER_CASE;
+        text2modifier["F"] = KEY_MOD_UPPER_CASE;
+        text2modifier["G"] = KEY_MOD_UPPER_CASE;
+        text2modifier["H"] = KEY_MOD_UPPER_CASE;
+        text2modifier["I"] = KEY_MOD_UPPER_CASE;
+        text2modifier["J"] = KEY_MOD_UPPER_CASE;
+        text2modifier["K"] = KEY_MOD_UPPER_CASE;
+        text2modifier["L"] = KEY_MOD_UPPER_CASE;
+        text2modifier["M"] = KEY_MOD_UPPER_CASE;
+        text2modifier["N"] = KEY_MOD_UPPER_CASE;
+        text2modifier["O"] = KEY_MOD_UPPER_CASE;
+        text2modifier["P"] = KEY_MOD_UPPER_CASE;
+        text2modifier["Q"] = KEY_MOD_UPPER_CASE;
+        text2modifier["R"] = KEY_MOD_UPPER_CASE;
+        text2modifier["S"] = KEY_MOD_UPPER_CASE;
+        text2modifier["T"] = KEY_MOD_UPPER_CASE;
+        text2modifier["U"] = KEY_MOD_UPPER_CASE;
+        text2modifier["V"] = KEY_MOD_UPPER_CASE;
+        text2modifier["W"] = KEY_MOD_UPPER_CASE;
+        text2modifier["X"] = KEY_MOD_UPPER_CASE;
+        text2modifier["Y"] = KEY_MOD_UPPER_CASE;
+        text2modifier["Z"] = KEY_MOD_UPPER_CASE;
+    }
 
     char keycode2char(int keycode)
     {
-        switch(keycode)
+        const bool b_upper = keycode & KEY_MOD_UPPER_CASE;
+        switch(keycode & 0xFFFF)
         {
         case KEY_0:
         case KEY_1:
@@ -246,7 +276,7 @@ namespace TA3D
         case KEY_X:
         case KEY_Y:
         case KEY_Z:
-            return keycode - KEY_A + 'a';
+            return keycode - KEY_A + 'a' + b_upper * ('A' - 'a');
         case KEY_PLUS:
             return '+';
         case KEY_MINUS:
@@ -269,14 +299,15 @@ namespace TA3D
         return 0;
     }
 
-    void set_key_down(int key)
+    void set_key_down(int key, const QString &text)
 	{
         const auto it = qt2Keycode.find(key);
         if (it == qt2Keycode.end())
             return;
 
         VARS::key[it.value()] = true;
-        keybuf.push_back(it.value());
+        const uint32 mod = text2modifier.contains(text) ? text2modifier[text] : 0;
+        keybuf.push_back(it.value() | mod);
     }
 
 

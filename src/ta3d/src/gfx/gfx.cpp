@@ -2060,7 +2060,7 @@ namespace TA3D
     void GFX::keyPressEvent(QKeyEvent *e)
     {
         QWindow::keyPressEvent(e);
-        set_key_down(e->key());
+        set_key_down(e->key(), e->text());
     }
 
     void GFX::keyReleaseEvent(QKeyEvent *e)
