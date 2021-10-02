@@ -18,7 +18,6 @@
 #ifndef __TA3D_KEYBOARD_H__
 # define __TA3D_KEYBOARD_H__
 
-# include <deque>
 # include <stdafx.h>
 # include <Qt>
 
@@ -159,8 +158,11 @@ enum KeyCode
     KEY_ASTERISK,
     KEY_SLASH,
 
+    KEY_PARENLEFT,
+    KEY_PARENRIGHT,
+
     // This is used to show/hide the console
-    KEY_TILDE,
+    KEY_TILDE = KEY_PARENRIGHT,
 
     KEY_CAPSLOCK,
 

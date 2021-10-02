@@ -19,6 +19,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include <QHash>
+#include <deque>
 
 using namespace TA3D::VARS;
 
@@ -141,8 +142,11 @@ namespace TA3D
         qt2Keycode[Qt::Key_PageUp] = KEY_PAGEUP;
         qt2Keycode[Qt::Key_PageDown] = KEY_PAGEDOWN;
 
+        qt2Keycode[Qt::Key_ParenLeft] = KEY_PARENLEFT;
+        qt2Keycode[Qt::Key_ParenRight] = KEY_PARENRIGHT;
+
         // This is used to show/hide the console
-        qt2Keycode[Qt::Key_ParenRight] = KEY_TILDE;
+//        qt2Keycode[Qt::Key_ParenRight] = KEY_TILDE;
 
         qt2Keycode[Qt::Key_CapsLock] = KEY_CAPSLOCK;
 
@@ -192,6 +196,9 @@ namespace TA3D
 		ascii_to_scancode[int('7')] = KEY_7;
 		ascii_to_scancode[int('8')] = KEY_8;
 		ascii_to_scancode[int('9')] = KEY_9;
+
+        ascii_to_scancode[int('(')] = KEY_PARENLEFT;
+        ascii_to_scancode[int(')')] = KEY_PARENRIGHT;
 
 		ascii_to_scancode[int(' ')] = KEY_SPACE;
 		ascii_to_scancode[int('\n')] = KEY_ENTER;
@@ -254,7 +261,10 @@ namespace TA3D
             return '*';
         case KEY_SLASH:
             return '/';
-
+        case KEY_PARENLEFT:
+            return '(';
+        case KEY_PARENRIGHT:
+            return ')';
         }
         return 0;
     }
