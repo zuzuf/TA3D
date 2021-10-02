@@ -64,35 +64,6 @@ namespace TA3D
 	*/
     QString Escape(const QString& s);
 
-
-
-
-	/*!
-    ** \brief Convert an UTF-8 QString into a WideChar QString
-	**
-	** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
-	**  everyone will agree it's nasty, but it'll remain here until we get something better
-	*/
-    struct WString
-	{
-	public:
-        WString(const char* s);
-        WString(const QString& str);
-
-		const wchar_t* cw_str() const {return pBuffer;}
-	private:
-		void fromUtf8(const char* s, size_t length);
-
-	private:
-		wchar_t pBuffer[5120];
-
-    }; // class WQString
-
-
-
-
-
-
 } // namespace TA3D
 
 #endif // __TA3D_TOOLBOX_STRING_H__

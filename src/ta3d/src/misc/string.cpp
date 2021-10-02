@@ -72,42 +72,6 @@ namespace TA3D
         return ret;
     }
 
-    WString::WString(const char* s)
-    {
-        if (s)
-            fromUtf8(s, strlen(s));
-        else
-            pBuffer[0] = 0;
-    }
-
-    WString::WString(const QString& s)
-    {
-        fromUtf8(s.toStdString().data(), s.size());
-    }
-
-    void WString::fromUtf8(const char* str, size_t length)
-    {
-		size_t len = 0;
-        for (size_t i = 0 ; i < length; i++)
-        {
-            if (((byte)str[i]) < 0x80)
-            {
-                pBuffer[len++] = ((byte)str[i]);
-                continue;
-            }
-            if (((byte)str[i]) >= 0xC0)
-            {
-                wchar_t c = ((byte)str[i++]) - 0xC0;
-                while(((byte)str[i]) >= 0x80)
-                    c = (c << 6) | (((byte)str[i++]) - 0x80);
-                --i;
-                pBuffer[len++] = c;
-                continue;
-            }
-        }
-        pBuffer[len] = 0;
-    }
-
     QStringList SplitCommand(const QString& s)
 	{
         QStringList args;

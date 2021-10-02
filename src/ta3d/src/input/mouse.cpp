@@ -67,29 +67,6 @@ namespace TA3D
 	void poll_inputs()
 	{
         qApp->processEvents();
-
-//        mouse_b = 0;
-//		int dx(0), dy(0);
-//		int rmx(0), rmy(0);
-//		uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
-//		dx = rmx - old_mx;
-//		dy = rmy - old_my;
-//		fmouse_x += float(dx) * lp_CONFIG->mouse_sensivity;
-//		fmouse_y += float(dy) * lp_CONFIG->mouse_sensivity;
-//		if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
-//		if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
-//		if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
-//        fmouse_x = Math::Clamp(fmouse_x, 0.f, (float)(SCREEN_W));
-//        fmouse_y = Math::Clamp(fmouse_y, 0.f, (float)SCREEN_H);
-//		mouse_x = (int)(fmouse_x + 0.5f);
-//		mouse_y = (int)(fmouse_y + 0.5f);
-//		if (rmx != mouse_x || rmy != mouse_y)
-//			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
-//		old_mx = mouse_x;
-//		old_my = mouse_y;
-
-//		if (lp_CONFIG->fullscreen && key[KEY_ALT] && key[KEY_TAB]&& (SDL_GetAppState() & SDL_APPACTIVE))
-//			SDL_WM_IconifyWindow();
 	}
 
 	int mouse_lx = 0;
@@ -108,7 +85,6 @@ namespace TA3D
 		old_mx = mouse_x;
 		old_my = mouse_y;
         QCursor::setPos(gfx->mapToGlobal(QPoint(mouse_x, mouse_y)));
-//		SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
         poll_inputs();
 	}
 
