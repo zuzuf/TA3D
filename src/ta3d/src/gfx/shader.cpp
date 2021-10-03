@@ -118,7 +118,7 @@ namespace TA3D
     void Shader::setmat4f(const char *var, const GLfloat *mat)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, QMatrix4x4(mat));
+            setUniformValue(var, QMatrix4x4(mat).transposed());
 	}
 
 // } // namespace GFX

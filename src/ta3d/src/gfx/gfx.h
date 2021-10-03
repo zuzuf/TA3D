@@ -304,7 +304,6 @@ namespace TA3D
 
         GfxTexture::Ptr glbackground;
 		GLuint      textureFBO;         // FBO used by renderToTexture functions
-        GfxTexture::Ptr textureDepth;
         GfxTexture::Ptr textureColor;       // Default color texture used by FBO when rendering to depth texture
         GfxTexture::Ptr shadowMap;
 

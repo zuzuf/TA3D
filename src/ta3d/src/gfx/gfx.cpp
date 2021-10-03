@@ -577,7 +577,6 @@ namespace TA3D
 
 		if (textureFBO)
             glDeleteFramebuffers(1,&textureFBO);
-        textureDepth = nullptr;
 
         textureColor = nullptr;
         shadowMap = nullptr;
@@ -1771,34 +1770,31 @@ namespace TA3D
 
     void GFX::renderToTextureDepth(const GfxTexture::Ptr &tex)
 	{
-//        if (!tex)       // Release the texture
-//		{
-//            glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
-//			glViewport(0, 0, width, height);           // Use default viewport
-//		}
-//		else
-//		{
-//            int tex_w = tex->width();
-//            int tex_h = tex->height();
-//            if (!textureFBO)    // Generate a FBO if none has been created yet
-//			{
-//                glGenFramebuffers(1, &textureFBO);
-//                glGenRenderbuffers(1, &textureDepth);
-//			}
-//            if (!textureColor)
-//				textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
-//			else
-//			{
-//                textureColor->bind();
-//				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-//			}
+        if (!tex)       // Release the texture
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
+            glViewport(0, 0, width, height);           // Use default viewport
+        }
+        else
+        {
+            int tex_w = tex->width();
+            int tex_h = tex->height();
+            if (!textureFBO)    // Generate a FBO if none has been created yet
+                glGenFramebuffers(1, &textureFBO);
+            if (!textureColor)
+                textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
+            else
+            {
+                textureColor->bind();
+                glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            }
 
-//            glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-//            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
-//            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
+            glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
 
-//			glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
-//		}
+            glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
+        }
 	}
 
 
@@ -1869,6 +1865,8 @@ namespace TA3D
             shadowMapTexture->setMagnificationFilter(GfxTexture::Linear);
 		}
         shadowMapTexture->setWrapMode(GfxTexture::ClampToEdge);
+        shadowMapTexture->setComparisonFunction(GfxTexture::CompareLessEqual);
+        shadowMapTexture->setComparisonMode(GfxTexture::CompareRefToTexture);
 
 		return shadowMapTexture;
 	}
