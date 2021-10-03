@@ -106,7 +106,7 @@ namespace TA3D
 				// slide in
                 if (!Math::Equals(pVisible, 1.0f))
 				{
-					pVisible += dt;
+                    pVisible += dt * 4.f;
 					if (pVisible > 1.0f)
 						pVisible = 1.0f;
 				}
@@ -116,7 +116,7 @@ namespace TA3D
 				// slide out
                 if (!Math::Zero(pVisible))
 				{
-					pVisible -= dt;
+                    pVisible -= dt * 4.f;
 					if (pVisible < 0.0f)
 						pVisible = 0.0f;
 				}
