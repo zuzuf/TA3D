@@ -45,6 +45,29 @@
 
 namespace TA3D
 {
+
+    void checkGLerror(const char *filename, int line)
+    {
+        GLuint err = glGetError();
+        if (line == 1050)   return;
+        switch(err)
+        {
+        case GL_NO_ERROR:   break;
+#define IMPL_ERROR(X)   case X: std::cout << filename << " l." << line << " OpenGL error : " #X << std::endl; break;
+        IMPL_ERROR(GL_INVALID_ENUM)
+        IMPL_ERROR(GL_INVALID_VALUE)
+        IMPL_ERROR(GL_INVALID_OPERATION)
+        IMPL_ERROR(GL_STACK_OVERFLOW)
+        IMPL_ERROR(GL_STACK_UNDERFLOW)
+        IMPL_ERROR(GL_OUT_OF_MEMORY)
+#undef IMPL_ERROR
+        default:
+            std::cout << filename << " l." << line << " Unknown OpenGL error : " << err << std::endl;
+        }
+    }
+
+#define CHECK_GL()  checkGLerror(__FILE__, __LINE__)
+
     TA3D::GFX::Ptr  TA3D::VARS::gfx;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 
 	void GFX::set_texture_format(GLuint gl_format)
@@ -485,8 +508,10 @@ namespace TA3D
 		else
 			set_texture_format(defaultRGBTextureFormat);
 		glViewport(0,0,width,height);
+        CHECK_GL();
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+        CHECK_GL();
 
         loadShaders();
     }
@@ -576,7 +601,10 @@ namespace TA3D
             m_context->makeCurrent(this);
 
 		if (textureFBO)
+        {
             glDeleteFramebuffers(1,&textureFBO);
+            CHECK_GL();
+        }
 
         textureColor = nullptr;
         shadowMap = nullptr;
@@ -638,30 +666,45 @@ namespace TA3D
 	{
 		float gl_color[4];
 		glGetFloatv(GL_CURRENT_COLOR, gl_color);
-		gl_color[3] = a;
+        CHECK_GL();
+        gl_color[3] = a;
 		glColor4fv(gl_color);
-	}
+        CHECK_GL();
+    }
 
 
 	void GFX::set_2D_mode()
 	{
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
+        CHECK_GL();
 
 		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, width, height, 0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+        CHECK_GL();
+        glLoadIdentity();
+        CHECK_GL();
+        glOrtho(0, width, height, 0, -1.0, 1.0);
+        CHECK_GL();
+        glMatrixMode(GL_MODELVIEW);
+        CHECK_GL();
+        glLoadIdentity();
+        CHECK_GL();
 
 		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_BLEND);
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        glDisable(GL_BLEND);
+        CHECK_GL();
+        glDisable(GL_DEPTH_TEST);
+        CHECK_GL();
+        glDepthMask(GL_FALSE);
+        CHECK_GL();
+        glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
 
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-	}
+        CHECK_GL();
+    }
 
     QMatrix4x4 GFX::get2Dmatrix()
     {
@@ -675,83 +718,119 @@ namespace TA3D
 		if (w == -1 || h == -1)
 		{
 			glDisable(GL_SCISSOR_TEST);
-		}
+            CHECK_GL();
+        }
 		else
 		{
 			glScissor(x, height - (y + h), w, h);
-			glEnable(GL_SCISSOR_TEST);
-		}
+            CHECK_GL();
+            glEnable(GL_SCISSOR_TEST);
+            CHECK_GL();
+        }
 	}
 
 	void GFX::unset_2D_mode()
 	{
 		glPopAttrib();
-	}
+        CHECK_GL();
+    }
 
     void GFX::line_loop(const Vector2D *pts, const size_t nb_elts, const uint32 col)
     {
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, (GLfloat*)pts, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINE_LOOP, 0, nb_elts);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
     void GFX::lines(const Vector2D *pts, const size_t nb_elts, const uint32 col)
     {
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, (GLfloat*)pts, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINES, 0, nb_elts);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
     void GFX::line(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
         GLfloat points[4] = { x1,y1, x2,y2 };
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINES, 0, 2);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 	void GFX::rect(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
         GLfloat points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINE_LOOP, 0, 4);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 
@@ -760,17 +839,25 @@ namespace TA3D
         GLfloat points[8] = { x1,y1, x2,y1,
                               x1,y2, x2,y2 };
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 
@@ -788,17 +875,25 @@ namespace TA3D
         }
 
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINE_LOOP, 0, n);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 	void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
@@ -821,17 +916,25 @@ namespace TA3D
         }
 
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINE_LOOP, 0, n);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 	void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
@@ -854,24 +957,32 @@ namespace TA3D
         }
 
         drawing2d_color_shader->bind();
+        CHECK_GL();
         drawing2d_color_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_color_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_color_shader->setAttributeValue(1,
                                             getr(col) * (1.f / 255.f),
                                             getg(col) * (1.f / 255.f),
                                             getb(col) * (1.f / 255.f),
                                             geta(col) * (1.f / 255.f));
+        CHECK_GL();
         glDrawArrays(GL_LINE_LOOP, 0, n);
+        CHECK_GL();
         drawing2d_color_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_color_shader->release();
+        CHECK_GL();
     }
 
 	void GFX::circlefill(const float x, const float y, const float r)
 	{
 		float d_alpha = DB_PI/(r+1.0f);
 		int n = (int)(DB_PI / d_alpha) + 4;
-		float *points = new float[n * 2];
+        float points[n * 2];
 		int i = 0;
 		points[i++] = x;
 		points[i++] = y;
@@ -880,13 +991,19 @@ namespace TA3D
 			points[i++] = x+r*cosf(alpha);
 			points[i++] = y+r*sinf(alpha);
 		}
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_TRIANGLE_FAN, 0, i>>1 );
-		DELETE_ARRAY(points);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_NORMAL_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        CHECK_GL();
+        glDrawArrays( GL_TRIANGLE_FAN, 0, i>>1 );
+        CHECK_GL();
 	}
 
 	void GFX::circlefill(const float x, const float y, const float r, const uint32 col)
@@ -899,9 +1016,12 @@ namespace TA3D
 	void GFX::rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
         glLineStipple(1, 0x5555);
+        CHECK_GL();
         glEnable(GL_LINE_STIPPLE);
+        CHECK_GL();
         rect(x1,y1,x2,y2,col);
         glDisable(GL_LINE_STIPPLE);
+        CHECK_GL();
     }
 
     void GFX::drawtexture(const GfxTexture::Ptr &tex,
@@ -927,27 +1047,39 @@ namespace TA3D
                           const uint32 col)
 	{
         tex->bind(GL_TEXTURE0);
+        CHECK_GL();
 
         GLfloat points[8] = { x1,y1, x2,y1,
                               x1,y2, x2,y2 };
         GLfloat tcoord[8] = { u1,v1, u2,v1,
                               u1,v2, u2,v2 };
         drawing2d_texture_shader->bind();
+        CHECK_GL();
         drawing2d_texture_shader->setAttributeArray(0, points, 2);
+        CHECK_GL();
         drawing2d_texture_shader->enableAttributeArray(0);
+        CHECK_GL();
         drawing2d_texture_shader->disableAttributeArray(1);
+        CHECK_GL();
         drawing2d_texture_shader->setAttributeValue(1,
                                                     getr(col) * (1.f / 255.f),
                                                     getg(col) * (1.f / 255.f),
                                                     getb(col) * (1.f / 255.f),
                                                     geta(col) * (1.f / 255.f));
+        CHECK_GL();
         drawing2d_texture_shader->setAttributeArray(2, tcoord, 2);
+        CHECK_GL();
         drawing2d_texture_shader->enableAttributeArray(2);
+        CHECK_GL();
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        CHECK_GL();
         drawing2d_texture_shader->disableAttributeArray(0);
+        CHECK_GL();
         drawing2d_texture_shader->disableAttributeArray(2);
+        CHECK_GL();
         drawing2d_texture_shader->release();
-	}
+        CHECK_GL();
+    }
 
 	int GFX::max_texture_size()
 	{
@@ -1579,29 +1711,38 @@ namespace TA3D
 	void GFX::set_alpha_blending()
 	{
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		alpha_blending_set = true;
+        CHECK_GL();
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        alpha_blending_set = true;
 	}
 
 
 	void GFX::unset_alpha_blending()
 	{
 		glDisable(GL_BLEND);
-		alpha_blending_set = false;
+        CHECK_GL();
+        alpha_blending_set = false;
 	}
 
 
 	void GFX::ReInitTexSys(bool matrix_reset)
 	{
 		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		if (matrix_reset)
+        CHECK_GL();
+        glDisable(GL_TEXTURE_GEN_S);
+        CHECK_GL();
+        glDisable(GL_TEXTURE_GEN_T);
+        CHECK_GL();
+        if (matrix_reset)
 		{
 			glMatrixMode(GL_TEXTURE);
-			glLoadIdentity();
-			glMatrixMode(GL_MODELVIEW);
-		}
+            CHECK_GL();
+            glLoadIdentity();
+            CHECK_GL();
+            glMatrixMode(GL_MODELVIEW);
+            CHECK_GL();
+        }
 	}
 
 
@@ -1612,37 +1753,62 @@ namespace TA3D
 			for (unsigned int i = 0; i < 7; ++i)
 			{
 				glActiveTextureARB(GL_TEXTURE0_ARB + i);
-				ReInitTexSys();
+                CHECK_GL();
+                ReInitTexSys();
 				glClientActiveTexture(GL_TEXTURE0_ARB + i);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				if (disable)
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                if (disable)
+                {
 					glDisable(GL_TEXTURE_2D);
-			}
+                    CHECK_GL();
+                }
+            }
 			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glClientActiveTexture(GL_TEXTURE0_ARB);
-		}
+            CHECK_GL();
+            glClientActiveTexture(GL_TEXTURE0_ARB);
+            CHECK_GL();
+        }
 	}
 
 
 	void GFX::SetDefState()
 	{
-		glClearColor (0, 0, 0, 0);
-		glShadeModel (GL_SMOOTH);
-		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-		glDepthFunc( GL_LESS );
-		glEnable (GL_DEPTH_TEST);
-		glCullFace (GL_BACK);
-		glEnable (GL_CULL_FACE);
-		glHint(GL_FOG_HINT, GL_NICEST);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+        CHECK_GL();
+        glClearColor (0, 0, 0, 0);
+        CHECK_GL();
+        glShadeModel (GL_SMOOTH);
+        CHECK_GL();
+        glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+        CHECK_GL();
+        glDepthFunc( GL_LESS );
+        CHECK_GL();
+        glEnable (GL_DEPTH_TEST);
+        CHECK_GL();
+        glCullFace (GL_BACK);
+        CHECK_GL();
+        glEnable (GL_CULL_FACE);
+        CHECK_GL();
+        glHint(GL_FOG_HINT, GL_NICEST);
+        CHECK_GL();
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        CHECK_GL();
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        CHECK_GL();
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        CHECK_GL();
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        CHECK_GL();
+        glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+        CHECK_GL();
         glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-		glDisable(GL_BLEND);
-		glEnable(GL_LIGHTING);
-		ReInitTexSys();
+        CHECK_GL();
+        glDisable(GL_BLEND);
+        CHECK_GL();
+        glEnable(GL_LIGHTING);
+        CHECK_GL();
+        ReInitTexSys();
 		alpha_blending_set = false;
 	}
 
@@ -1650,10 +1816,14 @@ namespace TA3D
 	void GFX::ReInitArrays()
 	{
 		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-	}
+        CHECK_GL();
+        glDisableClientState(GL_NORMAL_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+    }
 
 
     uint32 GFX::InterfaceMsg(const uint32 MsgID, const QString &)
@@ -1666,32 +1836,42 @@ namespace TA3D
 
 	void GFX::clearAll()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
+        CHECK_GL();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CHECK_GL();
+    }
 
 
 	void GFX::clearScreen()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
+        CHECK_GL();
+        glClear(GL_COLOR_BUFFER_BIT);
+        CHECK_GL();
+    }
 
 
 	void GFX::clearDepth()
 	{
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
+        CHECK_GL();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        CHECK_GL();
+    }
 
 
 	void GFX::disable_texturing()
 	{
-		glDisable( GL_TEXTURE_2D );
-	}
+        CHECK_GL();
+        glDisable( GL_TEXTURE_2D );
+        CHECK_GL();
+    }
 
 
 	void GFX::enable_texturing()
 	{
-		glEnable( GL_TEXTURE_2D );
-	}
+        CHECK_GL();
+        glEnable( GL_TEXTURE_2D );
+        CHECK_GL();
+    }
 
 
 	void GFX::preCalculations()
@@ -1773,27 +1953,50 @@ namespace TA3D
         if (!tex)       // Release the texture
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
+            CHECK_GL();
             glViewport(0, 0, width, height);           // Use default viewport
+            CHECK_GL();
         }
         else
         {
             int tex_w = tex->width();
             int tex_h = tex->height();
             if (!textureFBO)    // Generate a FBO if none has been created yet
+            {
                 glGenFramebuffers(1, &textureFBO);
+                CHECK_GL();
+            }
             if (!textureColor)
                 textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
             else
             {
                 textureColor->bind();
+                CHECK_GL();
                 glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+                CHECK_GL();
             }
 
             glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
+            CHECK_GL();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor->textureId(), 0);
+            CHECK_GL();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
+            CHECK_GL();
+
+            switch (glCheckFramebufferStatus(GL_FRAMEBUFFER))
+            {
+            case GL_FRAMEBUFFER_COMPLETE:   break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:          std::cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT" << std::endl; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:  std::cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT" << std::endl; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:         std::cout << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER" << std::endl; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:         std::cout << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER" << std::endl; break;
+            case GL_FRAMEBUFFER_UNSUPPORTED:                    std::cout << "GL_FRAMEBUFFER_UNSUPPORTED" << std::endl; break;
+            default:
+                std::cout << "Unknown FBO status" << std::endl;
+            }
 
             glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
+            CHECK_GL();
         }
 	}
 
@@ -1867,6 +2070,7 @@ namespace TA3D
         shadowMapTexture->setWrapMode(GfxTexture::ClampToEdge);
         shadowMapTexture->setComparisonFunction(GfxTexture::CompareLessEqual);
         shadowMapTexture->setComparisonMode(GfxTexture::CompareRefToTexture);
+        shadowMapTexture->allocateStorage();
 
 		return shadowMapTexture;
 	}
@@ -1920,20 +2124,29 @@ namespace TA3D
                         if (model_shader && model_shader->isLinked())
 						{
                             model_shader->bind();
+                            CHECK_GL();
                             model_shader->setUniformValue("shadowMap", 7);
+                            CHECK_GL();
                             model_shader->setmat4f("light_Projection", shadowMapProjectionMatrix);
-						}
+                            CHECK_GL();
+                        }
 						# endif
 						break;
 					}
 				default:
                     if (model_shader)
+                    {
                         model_shader->release();
-			}
+                        CHECK_GL();
+                    }
+            }
 			break;
 		default:
             if (model_shader)
+            {
                 model_shader->release();
+                CHECK_GL();
+            }
 		}
 	}
 
@@ -1943,32 +2156,51 @@ namespace TA3D
         {
             drawing2d_color_shader = new Shader("shaders/2d_color.frag", "shaders/2d_color.vert");
             drawing2d_color_shader->bindAttributeLocation("aVertex", 0);
+            CHECK_GL();
             drawing2d_color_shader->bindAttributeLocation("aColor", 1);
+            CHECK_GL();
             drawing2d_color_shader->link();
+            CHECK_GL();
             drawing2d_color_shader->bind();
+            CHECK_GL();
             drawing2d_color_shader->setUniformValue("uMatrix", get2Dmatrix());
+            CHECK_GL();
             drawing2d_color_shader->release();
+            CHECK_GL();
         }
         if (!drawing2d_texture_shader)
         {
             drawing2d_texture_shader = new Shader("shaders/2d_texture.frag", "shaders/2d_texture.vert");
             drawing2d_texture_shader->bindAttributeLocation("aVertex", 0);
+            CHECK_GL();
             drawing2d_texture_shader->bindAttributeLocation("aColor", 1);
+            CHECK_GL();
             drawing2d_texture_shader->bindAttributeLocation("aTexCoord", 2);
+            CHECK_GL();
             drawing2d_texture_shader->link();
+            CHECK_GL();
             drawing2d_texture_shader->bind();
+            CHECK_GL();
             drawing2d_texture_shader->setUniformValue("uMatrix", get2Dmatrix());
+            CHECK_GL();
             drawing2d_texture_shader->setUniformValue("uTex", 0);
+            CHECK_GL();
             drawing2d_texture_shader->release();
+            CHECK_GL();
         }
         if (!particle_shader)
         {
             particle_shader = new Shader("shaders/particle.frag", "shaders/particle.vert");
             particle_shader->bindAttributeLocation("aVertex", 0);
+            CHECK_GL();
             particle_shader->link();
+            CHECK_GL();
             particle_shader->bind();
+            CHECK_GL();
             particle_shader->setUniformValue("uTex", 0);
+            CHECK_GL();
             particle_shader->release();
+            CHECK_GL();
         }
     }
 
@@ -1976,8 +2208,11 @@ namespace TA3D
 	void GFX::disable_model_shading()
 	{
         if (model_shader)
+        {
             model_shader->release();
-	}
+            CHECK_GL();
+        }
+    }
 
 	void GFX::setShadowMapMode(bool mode)
 	{
@@ -1993,39 +2228,58 @@ namespace TA3D
 	{
 		GLfloat backup[16];
 		glGetFloatv(GL_PROJECTION_MATRIX, backup);
+        CHECK_GL();
 
 		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glScalef(0.5f, 0.5f, 0.5f);
-		glTranslatef(1.0f, 1.0f, 1.0f);
-		glMultMatrixf(backup);
-		glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
+        CHECK_GL();
+        glLoadIdentity();
+        CHECK_GL();
+        glScalef(0.5f, 0.5f, 0.5f);
+        CHECK_GL();
+        glTranslatef(1.0f, 1.0f, 1.0f);
+        CHECK_GL();
+        glMultMatrixf(backup);
+        CHECK_GL();
+        glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
+        CHECK_GL();
 
 		glLoadIdentity();
-		glMultMatrixf(backup);
-		glMatrixMode(GL_MODELVIEW);
-	}
+        CHECK_GL();
+        glMultMatrixf(backup);
+        CHECK_GL();
+        glMatrixMode(GL_MODELVIEW);
+        CHECK_GL();
+    }
 
     void GFX::enableShadowMapping()
 	{
 		glActiveTexture(GL_TEXTURE7);
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-	}
+        CHECK_GL();
+        glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+    }
 
     void GFX::disableShadowMapping()
 	{
 		glActiveTexture(GL_TEXTURE7);
-		glDisable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-	}
+        CHECK_GL();
+        glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+    }
 
 	void GFX::storeShadowMappingState()
 	{
 		glActiveTexture(GL_TEXTURE7);
-		shadowMapWasActive = glIsEnabled(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-	}
+        CHECK_GL();
+        shadowMapWasActive = glIsEnabled(GL_TEXTURE_2D);
+        CHECK_GL();
+        glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+    }
 
     void GFX::restoreShadowMappingState()
 	{
@@ -2052,6 +2306,7 @@ namespace TA3D
     void GFX::flip()
     {
         m_context->swapBuffers(this);
+        CHECK_GL();
     }
 
     // ---- Input events management ----
