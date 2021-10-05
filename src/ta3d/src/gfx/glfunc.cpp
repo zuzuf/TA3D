@@ -33,7 +33,6 @@ namespace TA3D
 
     bool	MultiTexturing = false;
 	bool	g_useTextureCompression = false;
-	bool	g_useProgram = false;
 	bool	g_useFBO = false;
 	bool    g_useGenMipMaps = false;
 	bool    g_useNonPowerOfTwoTextures = false;
@@ -44,7 +43,6 @@ namespace TA3D
         MultiTexturing = gfx->hasOpenGLFeature(QOpenGLFunctions::Multitexture);
 
         g_useTextureCompression = gfx->hasOpenGLFeature(QOpenGLFunctions::CompressedTextures);
-        g_useProgram = gfx->hasOpenGLFeature(QOpenGLFunctions::Shaders);
         g_useFBO = gfx->hasOpenGLFeature(QOpenGLFunctions::Framebuffers);
         g_useGenMipMaps = true;
         g_useNonPowerOfTwoTextures = gfx->hasOpenGLFeature(QOpenGLFunctions::NPOTTextures);

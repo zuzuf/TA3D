@@ -49,7 +49,6 @@ namespace TA3D
     void checkGLerror(const char *filename, int line)
     {
         GLuint err = glGetError();
-        if (line == 1050)   return;
         switch(err)
         {
         case GL_NO_ERROR:   break;
@@ -66,8 +65,6 @@ namespace TA3D
         }
     }
 
-#define CHECK_GL()  checkGLerror(__FILE__, __LINE__)
-
     TA3D::GFX::Ptr  TA3D::VARS::gfx;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 
 	void GFX::set_texture_format(GLuint gl_format)
@@ -83,6 +80,7 @@ namespace TA3D
 	void GFX::detectDefaultSettings()
 	{
         const GLubyte *glStr = glGetString(GL_VENDOR);
+        CHECK_GL();
         QString glVendor = glStr ? ToUpper((const char*)glStr) : QString();
 
 		enum VENDOR { Unknown, Ati, Nvidia, Sis, Intel };
@@ -121,8 +119,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Nvidia:
@@ -146,8 +142,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Sis:
@@ -172,8 +166,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 
 		case Unknown:
@@ -197,8 +189,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 		};
 #elif defined TA3D_PLATFORM_WINDOWS
@@ -225,8 +215,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Nvidia:
@@ -250,8 +238,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Sis:
@@ -276,8 +262,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 
 		case Unknown:
@@ -301,8 +285,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 		};
 #elif defined TA3D_PLATFORM_MAC
@@ -329,8 +311,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Nvidia:
@@ -354,8 +334,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = true;
 			lp_CONFIG->low_definition_map = false;
-
-			lp_CONFIG->disable_GLSL = false;
 			break;
 
 		case Sis:
@@ -380,8 +358,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 
 		case Unknown:
@@ -405,8 +381,6 @@ namespace TA3D
 
 			lp_CONFIG->render_sky = false;
 			lp_CONFIG->low_definition_map = true;
-
-			lp_CONFIG->disable_GLSL = true;
 			break;
 		};
 #endif
@@ -525,13 +499,6 @@ namespace TA3D
 	{
 		if (!g_useFBO)
 			lp_CONFIG->water_quality = Math::Min(lp_CONFIG->water_quality, sint16(1));
-		if (!g_useProgram)
-		{
-			lp_CONFIG->water_quality = Math::Min(lp_CONFIG->water_quality, sint16(1));
-			lp_CONFIG->disable_GLSL = true;
-			lp_CONFIG->detail_tex = false;
-			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
-		}
 # ifdef TA3D_PLATFORM_MAC
 		// For some reasons, the texture compression makes ta3d completely unstable on OS X,
 		// at least with an ATI video card.

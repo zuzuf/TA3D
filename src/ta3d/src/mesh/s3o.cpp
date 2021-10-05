@@ -78,58 +78,16 @@ namespace TA3D
             if (!tex_cache_name[0].isEmpty())
 			{
 				const QString &textureName = tex_cache_name[0];
-				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
-				{
-                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
-					if (tex)
-						gltex.push_back(tex);
-				}
-				else		// Fixed pipeline
-				{
-                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
-					if (tex)
-					{
-						gltex.push_back(tex);
-						tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8, NULL, true);
-						if (tex)
-							gltex.push_back(tex);
-					}
-				}
+                GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+                if (tex)
+                    gltex.push_back(tex);
 			}
 			if (tex_cache_name.size() == 2)
 			{
 				const QString &textureName = tex_cache_name[1];
-				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
-				{
-                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
-					if (tex)
-						gltex.push_back(tex);
-				}
-				else		// Fixed pipeline
-				{
-					// Get the RED channel
-                    QImage bmp = gfx->load_image(textureName);
-                    if (!bmp.isNull())
-					{
-						if (std::max(bmp.width(), bmp.height()) > lp_CONFIG->getMaxTextureSizeAllowed())
-						{
-							const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
-                            bmp = shrink(bmp, std::min(bmp.width(), maxTextureSizeAllowed), std::min(bmp.height(), maxTextureSizeAllowed));
-						}
-
-						QImage red = gfx->create_surface_ex(8, bmp.width(), bmp.height());
-
-						for(int y = 0 ; y < bmp.height() ; ++y)
-							for(int x = 0 ; x < bmp.width() ; ++x)
-								SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
-
-						gfx->set_texture_format(GL_LUMINANCE8);
-                        GfxTexture::Ptr tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
-						if (tex)
-							gltex.push_back(tex);
-						gfx->set_texture_format(0);
-					}
-				}
+                GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+                if (tex)
+                    gltex.push_back(tex);
 			}
 			tex_cache_name.clear();
 		}
@@ -168,242 +126,210 @@ namespace TA3D
 			{
 				if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 				{
-					if ((!lp_CONFIG->disable_GLSL && g_useProgram) || notex)					// GLSL-enabled code/texture-less option (because it's single pass)
-					{
-						bool activated_tex = false;
-						if (!alset)
-						{
-							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-							glEnableClientState(GL_NORMAL_ARRAY);
-							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-							glAlphaFunc( GL_GREATER, 0.1f );
-							glEnable(GL_LIGHTING);
-							alset = true;
-							set = true;
-						}
-						glEnable(GL_BLEND);
-						glEnable( GL_ALPHA_TEST );
+                    bool activated_tex = false;
+                    if (!alset)
+                    {
+                        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                        CHECK_GL();
+                        glEnableClientState(GL_NORMAL_ARRAY);
+                        CHECK_GL();
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        CHECK_GL();
+                        glAlphaFunc( GL_GREATER, 0.1f );
+                        CHECK_GL();
+                        glEnable(GL_LIGHTING);
+                        CHECK_GL();
+                        alset = true;
+                        set = true;
+                    }
+                    glEnable(GL_BLEND);
+                    CHECK_GL();
+                    glEnable( GL_ALPHA_TEST );
+                    CHECK_GL();
 
-						if (!notex) // Les textures et effets de texture
-						{
-							if (lp_CONFIG->shadow_quality >= 2)
-							{
-                                s3oShader->bind();
-                                s3oShader->setUniformValue( "tex0", 0 );
-                                s3oShader->setUniformValue( "tex1", 1 );
-                                s3oShader->setUniformValue( "shadowMap", 7 );
-                                s3oShader->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
-                                s3oShader->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
-                                s3oShader->setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
-							}
-							else
-							{
-                                s3oShader_woShadows->bind();
-                                s3oShader_woShadows->setUniformValue( "tex0", 0 );
-                                s3oShader_woShadows->setUniformValue( "tex1", 1 );
-                                s3oShader_woShadows->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
-                                s3oShader_woShadows->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
-							}
+                    if (!notex) // Les textures et effets de texture
+                    {
+                        if (lp_CONFIG->shadow_quality >= 2)
+                        {
+                            s3oShader->bind();
+                            CHECK_GL();
+                            s3oShader->setUniformValue( "tex0", 0 );
+                            CHECK_GL();
+                            s3oShader->setUniformValue( "tex1", 1 );
+                            CHECK_GL();
+                            s3oShader->setUniformValue( "shadowMap", 7 );
+                            CHECK_GL();
+                            s3oShader->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
+                            CHECK_GL();
+                            s3oShader->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+                            CHECK_GL();
+                            s3oShader->setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
+                            CHECK_GL();
+                        }
+                        else
+                        {
+                            s3oShader_woShadows->bind();
+                            CHECK_GL();
+                            s3oShader_woShadows->setUniformValue( "tex0", 0 );
+                            CHECK_GL();
+                            s3oShader_woShadows->setUniformValue( "tex1", 1 );
+                            CHECK_GL();
+                            s3oShader_woShadows->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
+                            CHECK_GL();
+                            s3oShader_woShadows->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+                            CHECK_GL();
+                        }
 
-							activated_tex = true;
-							for (uint32 j = 0; j < pTex->size() ; ++j)
-							{
-								glActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glEnable(GL_TEXTURE_2D);
-                                (*pTex)[j]->bind();
-							}
-							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-							for (uint32 j = 0; j < pTex->size() ; ++j)
-							{
-								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-							}
-						}
-						else
-						{
-							for (int j = 6; j >= 0; --j)
-							{
-								glActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glDisable(GL_TEXTURE_2D);
-								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-							}
-							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-							glEnable(GL_TEXTURE_2D);
-                            gfx->default_texture->bind();
-						}
-						glVertexPointer(3, GL_FLOAT, 0, points);
-						glNormalPointer(GL_FLOAT, 0, N);
-						switch(type)
-						{
-						case MESH_TYPE_TRIANGLES:
-							glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-							break;
-						case MESH_TYPE_TRIANGLE_STRIP:
-							glDisable( GL_CULL_FACE );
-							glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-							glEnable( GL_CULL_FACE );
-							break;
-						};
+                        activated_tex = true;
+                        for (uint32 j = 0; j < pTex->size() ; ++j)
+                        {
+                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glEnable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                            (*pTex)[j]->bind();
+                            CHECK_GL();
+                        }
+                        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                        CHECK_GL();
+                        for (uint32 j = 0; j < pTex->size() ; ++j)
+                        {
+                            glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                            CHECK_GL();
+                        }
+                    }
+                    else
+                    {
+                        for (int j = 6; j >= 0; --j)
+                        {
+                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glDisable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                            glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                            CHECK_GL();
+                        }
+                        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                        CHECK_GL();
+                        glEnable(GL_TEXTURE_2D);
+                        CHECK_GL();
+                        gfx->default_texture->bind();
+                        CHECK_GL();
+                    }
+                    glVertexPointer(3, GL_FLOAT, 0, points);
+                    CHECK_GL();
+                    glNormalPointer(GL_FLOAT, 0, N);
+                    CHECK_GL();
+                    switch(type)
+                    {
+                    case MESH_TYPE_TRIANGLES:
+                        glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+                        CHECK_GL();
+                        break;
+                    case MESH_TYPE_TRIANGLE_STRIP:
+                        glDisable( GL_CULL_FACE );
+                        CHECK_GL();
+                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                        CHECK_GL();
+                        glEnable( GL_CULL_FACE );
+                        CHECK_GL();
+                        break;
+                    };
 
-						if (activated_tex)
-						{
-							for (uint32 j = 0; j < pTex->size() ; ++j)
-							{
-								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    if (activated_tex)
+                    {
+                        for (uint32 j = 0; j < pTex->size() ; ++j)
+                        {
+                            glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                            CHECK_GL();
 
-								glActiveTextureARB(GL_TEXTURE0_ARB + j);
-								glDisable(GL_TEXTURE_2D);
-								glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-								glDisable(GL_TEXTURE_GEN_S);
-								glDisable(GL_TEXTURE_GEN_T);
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-							}
-							glClientActiveTextureARB(GL_TEXTURE0_ARB);
-							glActiveTextureARB(GL_TEXTURE0_ARB);
-							glEnable(GL_TEXTURE_2D);
-						}
-						if (!notex && !lp_CONFIG->disable_GLSL)
-                            s3oShader->release();
-						glDisable(GL_BLEND);
-						glDisable(GL_ALPHA_TEST);
-					}
-					else															// GLSL-disabled code
-					{
-						if (!alset)
-						{
-							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-							glEnableClientState(GL_NORMAL_ARRAY);
-							glEnable(GL_LIGHTING);
-							alset = true;
-							set = true;
-						}
-
-						glVertexPointer(3, GL_FLOAT, 0, points);
-						glNormalPointer(GL_FLOAT, 0, N);
-
-						// First pass : RGB color only
-						glDisable(GL_BLEND);
-						glDisable(GL_ALPHA_TEST);
-						if (pTex->size() > 0)
-						{
-							// Enable texturing
-							glActiveTextureARB(GL_TEXTURE0_ARB);
-							glEnable(GL_TEXTURE_2D);
-                            (*pTex)[0]->bind();
-							// Set UV array
-							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-							glClientActiveTextureARB(GL_TEXTURE0_ARB);
-							glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-						}
-						switch(type)
-						{
-						case MESH_TYPE_TRIANGLES:
-							glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-							break;
-						case MESH_TYPE_TRIANGLE_STRIP:
-							glDisable( GL_CULL_FACE );
-							glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-							glEnable( GL_CULL_FACE );
-							break;
-						};
-
-						if (pTex->size() > 1)		// Second and third passes needed only with textures
-						{
-							// Second pass : team color
-                            (*pTex)[1]->bind();		// Alpha texture
-							glEnable(GL_BLEND);
-							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-							glAlphaFunc( GL_GREATER, 0.0 );
-							glEnable( GL_ALPHA_TEST );
-							glDepthFunc(GL_LEQUAL);
-
-							GLfloat col[4];
-							glGetFloatv(GL_CURRENT_COLOR, col);
-
-							glColor4f(player_color[player_color_map[side] * 3],
-									  player_color[player_color_map[side] * 3 + 1],
-									  player_color[player_color_map[side] * 3 + 2],
-									  1.0f);
-
-							switch(type)
-							{
-							case MESH_TYPE_TRIANGLES:
-								glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-								break;
-							case MESH_TYPE_TRIANGLE_STRIP:
-								glDisable( GL_CULL_FACE );
-								glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-								glEnable( GL_CULL_FACE );
-								break;
-							};
-
-							if (pTex->size() > 2)		// Third pass : light emission
-							{
-                                (*pTex)[2]->bind();		// Alpha texture
-								const float c = 0.5f - 0.5f * cosf(t * PI);
-								glColor4f(c, c, c, 1.0f);
-								glBlendFunc(GL_SRC_COLOR, GL_ONE);
-								glDisable(GL_LIGHTING);
-
-								switch(type)
-								{
-								case MESH_TYPE_TRIANGLES:
-									glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-									break;
-								case MESH_TYPE_TRIANGLE_STRIP:
-									glDisable( GL_CULL_FACE );
-									glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-									glEnable( GL_CULL_FACE );
-									break;
-								};
-
-								glEnable(GL_LIGHTING);
-							}
-
-							glDisable(GL_BLEND);
-							glDisable(GL_ALPHA_TEST);
-							glColor4fv(col);
-							glDepthFunc(GL_LESS);
-						}
-
-						glClientActiveTextureARB(GL_TEXTURE0_ARB);
-						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					}
-				}
+                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            CHECK_GL();
+                            glDisable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                            glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                            CHECK_GL();
+                            glDisable(GL_TEXTURE_GEN_S);
+                            CHECK_GL();
+                            glDisable(GL_TEXTURE_GEN_T);
+                            CHECK_GL();
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                            CHECK_GL();
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                            CHECK_GL();
+                        }
+                        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                        CHECK_GL();
+                        glActiveTextureARB(GL_TEXTURE0_ARB);
+                        CHECK_GL();
+                        glEnable(GL_TEXTURE_2D);
+                        CHECK_GL();
+                    }
+                    if (!notex)
+                        s3oShader->release();
+                    glDisable(GL_BLEND);
+                    CHECK_GL();
+                    glDisable(GL_ALPHA_TEST);
+                    CHECK_GL();
+                }
 			}
 			if (sel_primitive && selprim >= 0 && nb_vtx > 0)
 			{
 				gfx->disable_model_shading();
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				glDisable(GL_FOG);
-				glDisable(GL_BLEND);
-				if (!set)
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                glDisableClientState(GL_NORMAL_ARRAY);
+                CHECK_GL();
+                glDisable(GL_LIGHTING);
+                CHECK_GL();
+                glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glDisable(GL_FOG);
+                CHECK_GL();
+                glDisable(GL_BLEND);
+                CHECK_GL();
+                if (!set)
+                {
 					glVertexPointer( 3, GL_FLOAT, 0, points);
-				glColor3ub(0,0xFF,0);
-				glTranslatef( 0.0f, 2.0f, 0.0f );
-				glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
-				glTranslatef( 0.0f, -2.0f, 0.0f );
-				if (notex)
+                    CHECK_GL();
+                }
+                glColor3ub(0,0xFF,0);
+                CHECK_GL();
+                glTranslatef( 0.0f, 2.0f, 0.0f );
+                CHECK_GL();
+                glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+                CHECK_GL();
+                glTranslatef( 0.0f, -2.0f, 0.0f );
+                CHECK_GL();
+                if (notex)
 				{
 					byte var = (byte)std::abs(int(0xFF - (msectimer() % 1000) * 0x200 / 1000));
 					glColor3ub(0, var, 0);
-				}
+                    CHECK_GL();
+                }
 				else
+                {
 					glColor3ub(0xFF, 0xFF, 0xFF);
-				alset = false;
+                    CHECK_GL();
+                }
+                alset = false;
 				gfx->enable_model_shading();
-				glEnable(GL_FOG);
-			}
+                CHECK_GL();
+                glEnable(GL_FOG);
+                CHECK_GL();
+            }
 			if (child && !(explodes && !exploding_parts))
 				alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
 			glPopMatrix();
-		}
+            CHECK_GL();
+        }
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
 
@@ -414,21 +340,30 @@ namespace TA3D
 	{
 		init_shaders();
 		glPushMatrix();
+        CHECK_GL();
 
 		glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
+        CHECK_GL();
 
 		if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 		{
 			if (!alset)
 			{
 				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-				glEnableClientState(GL_NORMAL_ARRAY);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glAlphaFunc( GL_GREATER, 0.1f );
-				glEnable( GL_ALPHA_TEST );
-				glEnable(GL_LIGHTING);
-				alset = true;
+                CHECK_GL();
+                glEnableClientState(GL_NORMAL_ARRAY);
+                CHECK_GL();
+                glEnable(GL_BLEND);
+                CHECK_GL();
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                CHECK_GL();
+                glAlphaFunc( GL_GREATER, 0.1f );
+                CHECK_GL();
+                glEnable( GL_ALPHA_TEST );
+                CHECK_GL();
+                glEnable(GL_LIGHTING);
+                CHECK_GL();
+                alset = true;
 			}
 
             std::vector<GfxTexture::Ptr> *pTex = &(root->gltex);
@@ -436,47 +371,72 @@ namespace TA3D
 			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                glActiveTextureARB(GL_TEXTURE0_ARB);
+                CHECK_GL();
+                glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 (*pTex)[j]->bind();
-				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-			}
+                CHECK_GL();
+                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                CHECK_GL();
+            }
 			glVertexPointer(3, GL_FLOAT, 0, points);
-			glNormalPointer(GL_FLOAT, 0, N);
-			switch(type)
+            CHECK_GL();
+            glNormalPointer(GL_FLOAT, 0, N);
+            CHECK_GL();
+            switch(type)
 			{
-				case MESH_TYPE_TRIANGLES:
-					glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-					break;
-				case MESH_TYPE_TRIANGLE_STRIP:
-					glDisable( GL_CULL_FACE );
-					glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-					glEnable( GL_CULL_FACE );
-					break;
-			};
+            case MESH_TYPE_TRIANGLES:
+                glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+                CHECK_GL();
+                break;
+            case MESH_TYPE_TRIANGLE_STRIP:
+                glDisable( GL_CULL_FACE );
+                CHECK_GL();
+                glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                CHECK_GL();
+                glEnable( GL_CULL_FACE );
+                CHECK_GL();
+                break;
+            };
 
 			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
 
 				glActiveTextureARB(GL_TEXTURE0_ARB + j);
-				glDisable(GL_TEXTURE_2D);
-				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-				glDisable(GL_TEXTURE_GEN_S);
-				glDisable(GL_TEXTURE_GEN_T);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			}
+                CHECK_GL();
+                glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                CHECK_GL();
+                glDisable(GL_TEXTURE_GEN_S);
+                CHECK_GL();
+                glDisable(GL_TEXTURE_GEN_T);
+                CHECK_GL();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                CHECK_GL();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                CHECK_GL();
+            }
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glEnable(GL_TEXTURE_2D);
-		}
+            CHECK_GL();
+            glActiveTextureARB(GL_TEXTURE0_ARB);
+            CHECK_GL();
+            glEnable(GL_TEXTURE_2D);
+            CHECK_GL();
+        }
 		if (child)
 			alset = child->draw_nodl(alset);
 		glPopMatrix();
-		if (next)
+        CHECK_GL();
+        if (next)
 			alset = next->draw_nodl(alset);
 
 		return alset;

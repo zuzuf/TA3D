@@ -51,7 +51,6 @@ namespace TA3D
 		mouse_sensivity = 1.0f;
 		ortho_camera = false;
 		right_click_interface = false;
-		disable_GLSL = false;           // By default we want shaders
 		underwater_bright = false;
 		use_texture_compression = true;
 		low_definition_map = false;

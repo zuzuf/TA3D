@@ -46,9 +46,6 @@ namespace TA3D
 
 	void Battle::reloadShaders()
 	{
-		if (!g_useProgram)
-			return;
-
 		if (map->ota_data.whitefog)
             water_shader = new Shader("shaders/water_fog.frag","shaders/water.vert");
 		else
@@ -676,9 +673,10 @@ namespace TA3D
 		water_obj->build((float)map->map_w, (float)map->map_h, 1000.0f);
 		water_sim0 = water_sim1 = water_sim2 = 0;
 
-		if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
+        if (g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
 		{
             gfx->glGenFramebuffers(1, &water_FBO);
+            CHECK_GL();
 
 			if (2 == lp_CONFIG->water_quality)
                 water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");

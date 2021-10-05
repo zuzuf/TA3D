@@ -99,7 +99,6 @@ namespace Settings
                << "       Low Definition Map = " << TA3D::VARS::lp_CONFIG->low_definition_map << ";\n"
                << "  Use Texture Compression = " << TA3D::VARS::lp_CONFIG->use_texture_compression << ";\n"
                << "        Underwater Bright = " << TA3D::VARS::lp_CONFIG->underwater_bright << ";\n"
-               << "             Disable GLSL = " << TA3D::VARS::lp_CONFIG->disable_GLSL << ";\n"
                << "    Right Click Interface = " << TA3D::VARS::lp_CONFIG->right_click_interface << ";\n"
                << "      Orthographic Camera = " << TA3D::VARS::lp_CONFIG->ortho_camera << ";\n"
                << "        Mouse Sensitivity = " << TA3D::VARS::lp_CONFIG->mouse_sensivity << ";\n"
@@ -205,8 +204,6 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->use_texture_compression = cfgFile.pullAsBool("TA3D.Use Texture Compression", true);
 
 		TA3D::VARS::lp_CONFIG->underwater_bright = cfgFile.pullAsBool("TA3D.Underwater Bright", false);
-
-		TA3D::VARS::lp_CONFIG->disable_GLSL = cfgFile.pullAsBool("TA3D.Disable GLSL", false);
 
 		TA3D::VARS::lp_CONFIG->right_click_interface = cfgFile.pullAsBool("TA3D.Right Click Interface", false);
 

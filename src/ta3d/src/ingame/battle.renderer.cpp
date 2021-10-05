@@ -44,29 +44,37 @@ namespace TA3D
         units->renderTick();
 
         gfx->glActiveTexture(GL_TEXTURE7_ARB);
+        CHECK_GL();
         gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
         gfx->glBindTexture(GL_TEXTURE_2D, 0);
+        CHECK_GL();
         gfx->glActiveTexture(GL_TEXTURE0_ARB);
-		gfx->setShadowMapMode(false);
-		if (g_useProgram)
-            gfx->glUseProgram(0);
-	}
+        CHECK_GL();
+        gfx->setShadowMapMode(false);
+        CHECK_GL();
+        gfx->glUseProgram(0);
+        CHECK_GL();
+    }
 
 
 	void Battle::renderReflection()
 	{
 		// Dessine les reflets sur l'eau / Render water reflection
-		if (g_useProgram && g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
+        if (g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
 		{
 			reflection_drawn_last_time = true;
 
 			gfx->clearAll();		// Clear screen
 
-			glViewport(0, 0, 512, 512);
+            gfx->glViewport(0, 0, 512, 512);
+            CHECK_GL();
 
 			gfx->ReInitAllTex();
-			glColor4f(1.0f,1.0f,1.0f,1.0f);
-			glDisable(GL_BLEND);
+            glColor4f(1.0f,1.0f,1.0f,1.0f);
+            CHECK_GL();
+            gfx->glDisable(GL_BLEND);
+            CHECK_GL();
 
 			double eqn[4]= { 0.0f, 1.0f, 0.0f, -map->sealvl };
 
@@ -76,8 +84,10 @@ namespace TA3D
 			refcam.mirrorPos = -2.0f * map->sealvl;
 
 			refcam.setView();
-			glClipPlane(GL_CLIP_PLANE1, eqn);
-			glEnable(GL_CLIP_PLANE1);
+            glClipPlane(GL_CLIP_PLANE1, eqn);
+            CHECK_GL();
+            glEnable(GL_CLIP_PLANE1);
+            CHECK_GL();
 
 			pSun.Set(refcam);
 			pSun.Enable();
@@ -85,39 +95,59 @@ namespace TA3D
 			refcam.zfar *= 100.0f;
 			refcam.setView();
 			glColor4ub(0xFF,0xFF,0xFF,0xFF);
-			glEnable(GL_TEXTURE_2D);
-			if (lp_CONFIG->render_sky)
+            CHECK_GL();
+            gfx->glEnable(GL_TEXTURE_2D);
+            CHECK_GL();
+            if (lp_CONFIG->render_sky)
 			{
-				glDisable(GL_FOG);
-				glDisable(GL_LIGHTING);
-				glDepthMask(GL_FALSE);
+                gfx->glDisable(GL_FOG);
+                CHECK_GL();
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDepthMask(GL_FALSE);
+                CHECK_GL();
 
-				glCullFace(GL_FRONT);
-				glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
-				glRotatef( sky_angle, 0.0f, 1.0f, 0.0f);
-				float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky.getW()) / sky.getW();
+                gfx->glCullFace(GL_FRONT);
+                CHECK_GL();
+                glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
+                CHECK_GL();
+                glRotatef( sky_angle, 0.0f, 1.0f, 0.0f);
+                CHECK_GL();
+                float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky.getW()) / sky.getW();
 				glScalef( scale_factor, scale_factor, scale_factor);
-				sky.draw();
+                CHECK_GL();
+                sky.draw();
 			}
 			refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
-			glDepthMask(GL_TRUE);
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_LIGHTING);
-			glEnable(GL_FOG);
-			glCullFace(GL_FRONT);
-			refcam.setView();
+            gfx->glDepthMask(GL_TRUE);
+            CHECK_GL();
+            gfx->glEnable(GL_CULL_FACE);
+            CHECK_GL();
+            gfx->glEnable(GL_LIGHTING);
+            CHECK_GL();
+            gfx->glEnable(GL_FOG);
+            CHECK_GL();
+            gfx->glCullFace(GL_FRONT);
+            CHECK_GL();
+            refcam.setView();
 
 			if (cam.rpos.y <= gfx->low_def_limit && lp_CONFIG->water_quality >= 4)
 			{
 				if (lp_CONFIG->wireframe)
+                {
 					glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+                    CHECK_GL();
+                }
 
 				map->draw(&refcam, byte(1 << players.local_human_id),  false, 0.0f, t,
 						  dt * units->apparent_timefactor,
 						  false, false, false);
 
 				if (lp_CONFIG->wireframe)
+                {
 					glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+                    CHECK_GL();
+                }
 
 				// Dessine les éléments "2D" / "sprites"
 				features->draw(render_time);
@@ -125,32 +155,41 @@ namespace TA3D
 				// Dessine les unités / draw units
                 units->draw(false, true, false, lp_CONFIG->height_line);
 
-				glDisable(GL_CULL_FACE);
-				// Dessine les objets produits par les armes / draw weapons
+                gfx->glDisable(GL_CULL_FACE);
+                CHECK_GL();
+                // Dessine les objets produits par les armes / draw weapons
                 weapons.draw(map);
 				// Dessine les particules
 				refcam.setView(true);
 				glClipPlane(GL_CLIP_PLANE1, eqn);
+                CHECK_GL();
 
 				particle_engine.draw(&refcam);
 
 				refcam.setView();
 				glClipPlane(GL_CLIP_PLANE1, eqn);
-				// Effets spéciaux en surface / fx above water
+                CHECK_GL();
+                // Effets spéciaux en surface / fx above water
 				fx_manager.draw(refcam, map->sealvl);
 			}
 
-			glDisable(GL_CLIP_PLANE1);
+            gfx->glDisable(GL_CLIP_PLANE1);
+            CHECK_GL();
 
 			gfx->ReInitAllTex(true);
 
 			glColor4ub(0xFF,0xFF,0xFF,0xFF);
-			glDisable(GL_BLEND);
+            CHECK_GL();
+            gfx->glDisable(GL_BLEND);
+            CHECK_GL();
 
             reflectex->bind();							// Store what's on screen for reflection effect
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 512, 512, 0);
+            CHECK_GL();
+            gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 512, 512, 0);
+            CHECK_GL();
 
-			glViewport(0, 0, SCREEN_W, SCREEN_H);
+            gfx->glViewport(0, 0, SCREEN_W, SCREEN_H);
+            CHECK_GL();
 
 			gfx->SetDefState();
 		}
@@ -175,21 +214,28 @@ namespace TA3D
 				// We'll need this matrix later (when rendering with shadows)
 				gfx->readShadowMapProjectionMatrix();
 
-				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-				glDisable(GL_FOG);
-				glShadeModel (GL_FLAT);
+                gfx->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                CHECK_GL();
+                gfx->glDisable(GL_FOG);
+                CHECK_GL();
+                glShadeModel (GL_FLAT);
+                CHECK_GL();
 
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(3.0f, 1.0f);
+                gfx->glEnable(GL_POLYGON_OFFSET_FILL);
+                CHECK_GL();
+                gfx->glPolygonOffset(3.0f, 1.0f);
+                CHECK_GL();
 
 				// Render all visible features from light's point of view
 				for(std::vector<int>::const_iterator i = features->list.begin() ; i != features->list.end() ; ++i)
 					features->feature[*i].draw = true;
 				features->draw(render_time, true);
 
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(3.0f, 1.0f);
-				// Render all visible units from light's point of view
+                gfx->glEnable(GL_POLYGON_OFFSET_FILL);
+                CHECK_GL();
+                gfx->glPolygonOffset(3.0f, 1.0f);
+                CHECK_GL();
+                // Render all visible units from light's point of view
                 units->draw(true, false, true, false);
                 units->draw(false, false, true, false);
 
@@ -197,21 +243,31 @@ namespace TA3D
 				weapons.draw(true);
 				weapons.draw(false);
 
-				glDisable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(0.0f, 0.0f);
+                gfx->glDisable(GL_POLYGON_OFFSET_FILL);
+                CHECK_GL();
+                gfx->glPolygonOffset(0.0f, 0.0f);
+                CHECK_GL();
 
                 gfx->renderToTextureDepth();
-				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                gfx->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                CHECK_GL();
 
-				glActiveTextureARB(GL_TEXTURE7_ARB);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE7);
+                CHECK_GL();
+                gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 gfx->get_shadow_map()->bind();
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-				glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
+                CHECK_GL();
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+//                CHECK_GL();
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+//                CHECK_GL();
+//				glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
+//                CHECK_GL();
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				gfx->setShadowMapMode(false);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
+                gfx->setShadowMapMode(false);
 				break;
 			};
 		}
@@ -227,83 +283,121 @@ namespace TA3D
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			gfx->ReInitAllTex(true);
 
-			if (!g_useProgram || !g_useFBO || lp_CONFIG->water_quality < 2)
+            if (!g_useFBO || lp_CONFIG->water_quality < 2)
 			{
 				gfx->set_alpha_blending();
 				if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
 				{
 					glColor4f(1.0f,1.0f,1.0f,0.5f);
+                    CHECK_GL();
 
-					glActiveTextureARB(GL_TEXTURE0_ARB);
-					glEnable(GL_TEXTURE_2D);
-					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                    gfx->glActiveTexture(GL_TEXTURE0);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                    CHECK_GL();
 
 					map->draw(&cam,1,true,map->sealvl,t,dt*lp_CONFIG->timefactor);
 				}
 				else 	// lp_CONFIG->water_quality=0
 				{
 					glColor4f(1.0f,1.0f,1.0f,0.5f);
-					glDisable(GL_LIGHTING);
+                    gfx->glDisable(GL_LIGHTING);
+                    CHECK_GL();
 
-					glActiveTextureARB(GL_TEXTURE0_ARB);
-					glEnable(GL_TEXTURE_2D);
+                    gfx->glActiveTexture(GL_TEXTURE0);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
                     map->low_tex->bind();
+                    CHECK_GL();
 
 					cam.setView(true);
 					glTranslatef(0.0f, map->sealvl, map->sea_dec);
-					water_obj->draw(t,false);
+                    CHECK_GL();
+                    water_obj->draw(t,false);
 					glColor4f(1.0f,1.0f,1.0f,0.75f);
+                    CHECK_GL();
 
-					glEnable(GL_LIGHTING);
-					glActiveTextureARB(GL_TEXTURE0_ARB);
-					gfx->ReInitTexSys();
-					glEnable(GL_TEXTURE_2D);
-				}
+                    gfx->glEnable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glActiveTexture(GL_TEXTURE0);
+                    CHECK_GL();
+                    gfx->ReInitTexSys();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                }
 				gfx->unset_alpha_blending();
 			}
 			else if (lp_CONFIG->water_quality <= 4)
 			{
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-				glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
 
 				// First pass of water rendering, store reflection vector
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                CHECK_GL();
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
+                CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
                 gfx->glViewport(0,0,512,512);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 map->lava_map->bind();
+                CHECK_GL();
                 glClientActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 water->bind();
+                CHECK_GL();
                 glClientActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
 
 				if (lp_CONFIG->water_quality == 2)
 				{
                     water_pass1_low->bind();
+                    CHECK_GL();
                     water_pass1_low->setUniformValue("lava",0);
+                    CHECK_GL();
                     water_pass1_low->setUniformValue("map",1);
+                    CHECK_GL();
                     water_pass1_low->setUniformValue("t",t);
+                    CHECK_GL();
                     water_pass1_low->setUniformValue("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
-				}
+                    CHECK_GL();
+                }
 				else
 				{
                     water_pass1->bind();
+                    CHECK_GL();
                     water_pass1->setUniformValue("lava",0);
+                    CHECK_GL();
                     water_pass1->setUniformValue("map",1);
+                    CHECK_GL();
                     water_pass1->setUniformValue("t",t);
+                    CHECK_GL();
                     water_pass1->setUniformValue("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
-				}
+                    CHECK_GL();
+                }
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
 				if (lp_CONFIG->water_quality == 2)
                     water_pass1_low->release();
@@ -311,42 +405,58 @@ namespace TA3D
                     water_pass1->release();
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass->textureId(), 0);					// Second pass of water rendering, store viewing vector
+                CHECK_GL();
 
 				//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 water_pass2->bind();
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
                 water_pass2->release();
 
 				if (lp_CONFIG->water_quality > 2)
 				{
                     gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color->textureId(), 0);					// Third pass of water rendering, store water color
+                    CHECK_GL();
 
                     gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                    CHECK_GL();
 
                     gfx->glActiveTexture(GL_TEXTURE0);
+                    CHECK_GL();
                     gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
                     map->low_tex->bind();
+                    CHECK_GL();
 
 					cam.setView();
 					glTranslatef( 0.0f, map->sealvl, map->sea_dec);
-					water_obj->draw(t, false);
+                    CHECK_GL();
+                    water_obj->draw(t, false);
 				}
 
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                CHECK_GL();
 
                 gfx->glViewport(0, 0, SCREEN_W, SCREEN_H);
+                CHECK_GL();
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);
 				float logh = logf((float)SCREEN_H) / logf(2.0f);
@@ -355,16 +465,25 @@ namespace TA3D
 				wx = 1 << wx;
 				wy = 1 << wy;
                 transtex->bind();								// Store what's on screen for transparency effect
+                CHECK_GL();
                 gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
+                CHECK_GL();
 
                 gfx->glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
+                CHECK_GL();
                 gfx->glClear(GL_STENCIL_BUFFER_BIT);
+                CHECK_GL();
                 gfx->glStencilFunc(GL_ALWAYS,128, 0xffffffff);
+                CHECK_GL();
                 gfx->glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
                 glClientActiveTextureARB(GL_TEXTURE0);
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
@@ -373,97 +492,166 @@ namespace TA3D
                 gfx->glDisable(GL_STENCIL_TEST);
 
                 glMatrixMode(GL_TEXTURE);
-				glLoadIdentity();
-				glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
+                glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
 
                 gfx->glEnable(GL_LIGHTING);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
-				if (map->ota_data.lavaworld)
+                CHECK_GL();
+                if (map->ota_data.lavaworld)
+                {
                     sky.skyTex()->bind();
-				else
+                    CHECK_GL();
+                }
+                else
+                {
                     reflectex->bind();
+                    CHECK_GL();
+                }
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
                 transtex->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE2);
+                CHECK_GL();
                 first_pass->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE3);
+                CHECK_GL();
                 second_pass->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
 				if (lp_CONFIG->water_quality == 2)
 				{
                     water_shader->bind();
+                    CHECK_GL();
                     water_shader->setUniformValue("sky",0);
+                    CHECK_GL();
                     water_shader->setUniformValue("rtex",1);
+                    CHECK_GL();
                     water_shader->setUniformValue("bump",2);
+                    CHECK_GL();
                     water_shader->setUniformValue("view",3);
+                    CHECK_GL();
                     water_shader->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
-				}
+                    CHECK_GL();
+                }
 				else
 				{
                     gfx->glActiveTexture(GL_TEXTURE4);
+                    CHECK_GL();
                     water_color->bind();
+                    CHECK_GL();
                     gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
 
                     water_shader_reflec->bind();
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("sky",0);
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("rtex",1);
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("bump",2);
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("view",3);
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("water_color",4);
+                    CHECK_GL();
                     water_shader_reflec->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
-				}
+                    CHECK_GL();
+                }
 
                 glColor4ub(0xFF,0xFF,0xFF,0xFF);
+                CHECK_GL();
                 gfx->glDisable(GL_DEPTH_TEST);
+                CHECK_GL();
 
 				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
+                glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+                CHECK_GL();
+                glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
 
                 gfx->glEnable(GL_STENCIL_TEST);
+                CHECK_GL();
                 gfx->glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
+                CHECK_GL();
                 gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+                CHECK_GL();
                 glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
-				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
-				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
-				glEnd();
+                CHECK_GL();
+                glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
+                CHECK_GL();
+                glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
+                CHECK_GL();
+                glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
+                CHECK_GL();
+                glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
+                CHECK_GL();
+                glEnd();
+                CHECK_GL();
                 gfx->glDisable(GL_STENCIL_TEST);
+                CHECK_GL();
                 gfx->glEnable(GL_DEPTH_TEST);
+                CHECK_GL();
 
 				if (lp_CONFIG->water_quality == 2)
+                {
                     water_shader->release();
-				else
+                    CHECK_GL();
+                }
+                else
+                {
                     water_shader_reflec->release();
-			}
+                    CHECK_GL();
+                }
+            }
 			else                            // New Ultimate quality water renderer
 			{
 				// Run water simulation entirely on the GPU
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                CHECK_GL();
 
                 gfx->glViewport(0,0,256,256);
+                CHECK_GL();
 
                 gfx->glDisable(GL_DEPTH_TEST);
                 gfx->glDisable(GL_LIGHTING);
 
 				glMatrixMode (GL_PROJECTION);
-				glLoadIdentity ();
-				glMatrixMode (GL_MODELVIEW);
-				glLoadIdentity();
+                CHECK_GL();
+                glLoadIdentity ();
+                CHECK_GL();
+                glMatrixMode (GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
 				const float time_step = 0.02f;
 				const float time_to_simulate = Math::Min( dt * units->apparent_timefactor, time_step * 3.0f );
@@ -472,7 +660,9 @@ namespace TA3D
 				for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
 				{
                     gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim0->textureId(), 0);
+                    CHECK_GL();
                     water_sim1->bind();
+                    CHECK_GL();
 
 					bool refresh = false;
 					if (msectimer() - last_water_refresh >= 100000)
@@ -482,58 +672,97 @@ namespace TA3D
 					}
 					float dt_step = Math::Min( time_to_simulate - real_time, time_step );
                     water_simulator_shader->bind();
+                    CHECK_GL();
                     water_simulator_shader->setUniformValue("sim",0);
+                    CHECK_GL();
                     water_simulator_shader->setUniformValue("fluid",50.0f * dt_step);
+                    CHECK_GL();
                     water_simulator_shader->setUniformValue("t", refresh ? 1.0f : 0.0f);
+                    CHECK_GL();
 
 					glBegin( GL_QUADS );
-					glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-					glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-					glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-					glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-					glEnd();
+                    CHECK_GL();
+                    glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
+                    CHECK_GL();
+                    glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
+                    CHECK_GL();
+                    glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
+                    CHECK_GL();
+                    glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
+                    CHECK_GL();
+                    glEnd();
+                    CHECK_GL();
 
                     water_simulator_shader->release();
+                    CHECK_GL();
 
                     gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim1->textureId(), 0);
+                    CHECK_GL();
                     water_sim0->bind();
+                    CHECK_GL();
 
                     water_simulator_shader2->bind();
+                    CHECK_GL();
                     water_simulator_shader2->setUniformValue("sim",0);
+                    CHECK_GL();
                     water_simulator_shader2->setUniformValue("dt", dt_step);
+                    CHECK_GL();
 
 					glBegin( GL_QUADS );
-					glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-					glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-					glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-					glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-					glEnd();
+                    CHECK_GL();
+                    glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
+                    CHECK_GL();
+                    glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
+                    CHECK_GL();
+                    glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
+                    CHECK_GL();
+                    glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
+                    CHECK_GL();
+                    glEnd();
+                    CHECK_GL();
 
                     water_simulator_shader2->release();
-				}
+                    CHECK_GL();
+                }
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim2->textureId(), 0);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 water_sim1->bind();
+                CHECK_GL();
 
                 water_simulator_shader3->bind();
+                CHECK_GL();
                 water_simulator_shader3->setUniformValue("sim",0);
+                CHECK_GL();
 
 				glBegin( GL_QUADS );
-				glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-				glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-				glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-				glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-				glEnd();
+                CHECK_GL();
+                glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
+                CHECK_GL();
+                glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
+                CHECK_GL();
+                glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
+                CHECK_GL();
+                glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
+                CHECK_GL();
+                glEnd();
+                CHECK_GL();
 
                 water_simulator_shader3->release();
+                CHECK_GL();
 
                 glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+                CHECK_GL();
                 gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
 
                 gfx->glEnable(GL_DEPTH_TEST);
+                CHECK_GL();
 
 				int ln2w = Math::Log2(SCREEN_W);
 				int ln2h = Math::Log2(SCREEN_H);
@@ -545,78 +774,117 @@ namespace TA3D
 				const int workheight = g_useNonPowerOfTwoTextures ? SCREEN_H : 1 << ln2h;
 
                 gfx->glViewport(0,0,workwidth,workheight);
+                CHECK_GL();
 
 				// Render water distortion effects (ripples, waves, ...)
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                CHECK_GL();
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_distortions, 0);
+                CHECK_GL();
                 gfx->glClearColor(0,0,0,0);
+                CHECK_GL();
                 gfx->glClear(GL_COLOR_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
 				cam.setView(true);
                 water_distortions_shader->bind();
-				fx_manager.drawWaterDistortions();
+                CHECK_GL();
+                fx_manager.drawWaterDistortions();
                 water_distortions_shader->release();
+                CHECK_GL();
 
 				glMatrixMode (GL_PROJECTION);
-				glLoadIdentity ();
-				glMatrixMode (GL_MODELVIEW);
-				glLoadIdentity();
+                CHECK_GL();
+                glLoadIdentity ();
+                CHECK_GL();
+                glMatrixMode (GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
 
 				// First pass of water rendering, store reflection vector
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                CHECK_GL();
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
+                CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 map->lava_map->bind();
+                CHECK_GL();
 
                 water_simulator_shader4->bind();
+                CHECK_GL();
                 water_simulator_shader4->setUniformValue("lava",0);
+                CHECK_GL();
                 water_simulator_shader4->setUniformValue("t",t);
+                CHECK_GL();
                 water_simulator_shader4->setUniformValue("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
                 water_simulator_shader4->release();
+                CHECK_GL();
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
+                CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 water_pass2->bind();
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
                 water_pass2->release();
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
+                CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                CHECK_GL();
 
                 gfx->glViewport(0,0,512,512);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 map->low_tex->bind();
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef( 0.0f, map->sealvl, map->sea_dec);
-				water_obj->draw(t, false);
+                CHECK_GL();
+                water_obj->draw(t, false);
 
                 gfx->renderToTexture();
                 gfx->glViewport(0, 0, workwidth, workheight);
+                CHECK_GL();
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);
 				float logh = logf((float)SCREEN_H) / logf(2.0f);
@@ -625,106 +893,188 @@ namespace TA3D
 				wx = 1 << wx;
 				wy = 1 << wy;
                 transtex->bind();								// Store what's on screen for transparency effect
+                CHECK_GL();
                 gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
+                CHECK_GL();
 
                 gfx->glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
+                CHECK_GL();
                 gfx->glClear(GL_STENCIL_BUFFER_BIT);
+                CHECK_GL();
                 gfx->glStencilFunc(GL_ALWAYS,128, 0xffffffff);
+                CHECK_GL();
                 gfx->glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
                 gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
                 gfx->glDisable(GL_STENCIL_TEST);
+                CHECK_GL();
 
 				glMatrixMode(GL_TEXTURE);
-				glLoadIdentity();
-				glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
+                glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
 
                 gfx->glEnable(GL_LIGHTING);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
-				if (map->ota_data.lavaworld)
+                CHECK_GL();
+                if (map->ota_data.lavaworld)
+                {
                     sky.skyTex()->bind();
-				else
+                    CHECK_GL();
+                }
+                else
+                {
                     reflectex->bind();
+                    CHECK_GL();
+                }
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
                 transtex->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE2);
+                CHECK_GL();
                 first_pass->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE3);
+                CHECK_GL();
                 second_pass->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE4);
+                CHECK_GL();
                 water_color->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE5);
+                CHECK_GL();
                 height_tex->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE6);
+                CHECK_GL();
                 water_sim2->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE7);
+                CHECK_GL();
                 water_distortions->bind();
+                CHECK_GL();
                 gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
 
                 water_simulator_reflec->bind();
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("sky",0);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("rtex",1);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("bump",2);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("view",3);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("water_color",4);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("height_map",5);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("normal_map",6);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("distort_map",7);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("cam_h_factor", 1.0f / cam.rpos.y);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                CHECK_GL();
                 water_simulator_reflec->setUniformValue("t", t);
+                CHECK_GL();
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
+                CHECK_GL();
                 gfx->glDisable(GL_DEPTH_TEST);
+                CHECK_GL();
 
 				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
+                glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+                CHECK_GL();
+                glMatrixMode(GL_MODELVIEW);
+                CHECK_GL();
+                glLoadIdentity();
+                CHECK_GL();
 
                 gfx->glEnable(GL_STENCIL_TEST);
+                CHECK_GL();
                 gfx->glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
+                CHECK_GL();
                 gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
-				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
-				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
-				glEnd();
+                CHECK_GL();
+                glBegin(GL_QUADS);
+                CHECK_GL();
+                glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
+                CHECK_GL();
+                glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
+                CHECK_GL();
+                glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
+                CHECK_GL();
+                glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
+                CHECK_GL();
+                glEnd();
+                CHECK_GL();
                 gfx->glDisable(GL_STENCIL_TEST);
+                CHECK_GL();
                 gfx->glEnable(GL_DEPTH_TEST);
+                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE7);
-				if (lp_CONFIG->shadow_quality >= 2 && cam.rpos.y <= gfx->low_def_limit)
+                CHECK_GL();
+                if (lp_CONFIG->shadow_quality >= 2 && cam.rpos.y <= gfx->low_def_limit)
+                {
                     gfx->get_shadow_map()->bind();
-				else
+                    CHECK_GL();
+                }
+                else
+                {
                     gfx->glDisable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                }
 
                 water_simulator_reflec->release();
-			}
+                CHECK_GL();
+            }
 			gfx->ReInitAllTex(true);
 		}
 		cam.setView();
@@ -734,7 +1084,8 @@ namespace TA3D
 	{
 		gfx->SetDefState();
         gfx->glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
-		gfx->clearDepth();		// Clear screen
+        CHECK_GL();
+        gfx->clearDepth();		// Clear screen
 
 		cam.setView();
 
@@ -746,38 +1097,57 @@ namespace TA3D
 		cam.zfar *= 100.0f;
 		cam.setView();
         gfx->glDisable(GL_FOG);
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
         gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
         gfx->glDisable(GL_BLEND);
-		if (lp_CONFIG->render_sky)
+        CHECK_GL();
+        if (lp_CONFIG->render_sky)
 		{
             gfx->glDisable(GL_LIGHTING);
+            CHECK_GL();
             gfx->glDepthMask(GL_FALSE);
-			glTranslatef(cam.rpos.x, cam.rpos.y + cam.shakeVector.y, cam.rpos.z);
-			glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
-			if (lp_CONFIG->ortho_camera)
+            CHECK_GL();
+            glTranslatef(cam.rpos.x, cam.rpos.y + cam.shakeVector.y, cam.rpos.z);
+            CHECK_GL();
+            glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
+            CHECK_GL();
+            if (lp_CONFIG->ortho_camera)
 			{
 				const float scale = cam.zoomFactor / 800.0f * std::sqrt(float(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W));
 				glScalef( scale, scale, scale );
-			}
+                CHECK_GL();
+            }
 			sky.draw();
 		}
 		else
 			gfx->clearScreen();
 
         gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
         gfx->glEnable(GL_CULL_FACE);
+        CHECK_GL();
         gfx->glEnable(GL_LIGHTING);
+        CHECK_GL();
         gfx->glEnable(GL_FOG);
-		updateZFAR();
+        CHECK_GL();
+        updateZFAR();
 
 		if (lp_CONFIG->wireframe)
+        {
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+            CHECK_GL();
+        }
 
         map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units->apparent_timefactor);
 
 		if (lp_CONFIG->wireframe)
+        {
 			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+            CHECK_GL();
+        }
 
 		cam.setView(lp_CONFIG->shadow_quality < 2);
 
@@ -790,9 +1160,13 @@ namespace TA3D
         if (cam.rpos.y <= gfx->low_def_limit)
         {
             if (lp_CONFIG->shadow_quality >= 2)
+            {
                 glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                CHECK_GL();
+            }
             units->draw(true, false, true, lp_CONFIG->height_line);
             glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+            CHECK_GL();
         }
 
         // Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
@@ -812,10 +1186,14 @@ namespace TA3D
 
         cam.setView(lp_CONFIG->shadow_quality < 2);
         if (lp_CONFIG->shadow_quality >= 2)
+        {
             glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+            CHECK_GL();
+        }
         // Dessine les unités non encore dessinées / Draw units which have not been drawn
         units->draw(false, false, true, lp_CONFIG->height_line);
         glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+        CHECK_GL();
 
         // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
         weapons.draw(false);
@@ -826,7 +1204,8 @@ namespace TA3D
 		if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
 		{
             gfx->glDisable(GL_FOG);
-			Vector3D target(cursorOnMap(cam, *map));
+            CHECK_GL();
+            Vector3D target(cursorOnMap(cam, *map));
 			pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
 			pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
 
@@ -863,95 +1242,154 @@ namespace TA3D
 				cam.setView();
 
 				glTranslatef(target.x,target.y,target.z);
-				glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
-				const float DX = float(unit_manager.unit_type[build]->FootprintX << 2);
+                CHECK_GL();
+                glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
+                CHECK_GL();
+                const float DX = float(unit_manager.unit_type[build]->FootprintX << 2);
 				const float DZ = float(unit_manager.unit_type[build]->FootprintZ << 2);
 				if (unit_manager.unit_type[build]->model)
 				{
                     gfx->glEnable(GL_CULL_FACE);
-					gfx->ReInitAllTex( true);
-					if (can_be_there)
+                    CHECK_GL();
+                    gfx->ReInitAllTex( true);
+                    CHECK_GL();
+                    if (can_be_there)
+                    {
 						glColor4ub(0xFF,0xFF,0xFF,0xFF);
-					else
+                        CHECK_GL();
+                    }
+                    else
+                    {
 						glColor4ub(0xFF,0,0,0xFF);
+                        CHECK_GL();
+                    }
                     gfx->glDepthFunc( GL_GREATER );
-					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+                    CHECK_GL();
+                    unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
                     gfx->glDepthFunc( GL_LESS );
-					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+                    CHECK_GL();
+                    unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 
 					const bool old_mode = gfx->getShadowMapMode();
 					gfx->setShadowMapMode(true);
 					double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - target.y };
 					glClipPlane(GL_CLIP_PLANE2, eqn);
+                    CHECK_GL();
 
-					glEnable(GL_CLIP_PLANE2);
+                    gfx->glEnable(GL_CLIP_PLANE2);
+                    CHECK_GL();
 
-					glEnable( GL_BLEND );
-					glBlendFunc( GL_ONE, GL_ONE );
-					glDepthFunc( GL_EQUAL );
-					glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+                    gfx->glEnable( GL_BLEND );
+                    CHECK_GL();
+                    gfx->glBlendFunc( GL_ONE, GL_ONE );
+                    CHECK_GL();
+                    gfx->glDepthFunc( GL_EQUAL );
+                    CHECK_GL();
+                    glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                    CHECK_GL();
+                    unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 					glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-					glDepthFunc( GL_LESS );
-					glDisable( GL_BLEND );
+                    CHECK_GL();
+                    gfx->glDepthFunc( GL_LESS );
+                    CHECK_GL();
+                    gfx->glDisable( GL_BLEND );
+                    CHECK_GL();
 
-					glDisable(GL_CLIP_PLANE2);
-					gfx->setShadowMapMode(old_mode);
+                    gfx->glDisable(GL_CLIP_PLANE2);
+                    CHECK_GL();
+                    gfx->setShadowMapMode(old_mode);
 				}
 				cam.setView();
 				glTranslatef(target.x,Math::Max( target.y, map->sealvl ),target.z);
-				byte red = 0xFF, green = 0x00;
+                CHECK_GL();
+                byte red = 0xFF, green = 0x00;
 				if (can_be_there)
 				{
 					green = 0xFF;
 					red   = 0x00;
 				}
-				glDisable(GL_CULL_FACE);
-				glDisable(GL_TEXTURE_2D);
-				glDisable(GL_LIGHTING);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glBegin(GL_QUADS);
-				glColor4ub(red,green,0x00,0xFF);
-				glVertex3f(-DX,0.0f,-DZ);			// First quad
-				glVertex3f(DX,0.0f,-DZ);
-				glColor4ub(red,green,0x00,0x00);
-				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
-				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+                gfx->glDisable(GL_CULL_FACE);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glEnable(GL_BLEND);
+                CHECK_GL();
+                gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                CHECK_GL();
+                glBegin(GL_QUADS);
+                CHECK_GL();
+                glColor4ub(red,green,0x00,0xFF);
+                CHECK_GL();
+                glVertex3f(-DX,0.0f,-DZ);			// First quad
+                CHECK_GL();
+                glVertex3f(DX,0.0f,-DZ);
+                CHECK_GL();
+                glColor4ub(red,green,0x00,0x00);
+                CHECK_GL();
+                glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
+                glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-				glVertex3f(-DX,0.0f,-DZ);			// Second quad
-				glVertex3f(-DX,0.0f,DZ);
-				glColor4ub(red,green,0x00,0x00);
-				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
+                glVertex3f(-DX,0.0f,-DZ);			// Second quad
+                CHECK_GL();
+                glVertex3f(-DX,0.0f,DZ);
+                CHECK_GL();
+                glColor4ub(red,green,0x00,0x00);
+                CHECK_GL();
+                glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
+                CHECK_GL();
+                glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-				glVertex3f(DX,0.0f,-DZ);			// Third quad
-				glVertex3f(DX,0.0f,DZ);
-				glColor4ub(red,green,0x00,0x00);
-				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
+                glVertex3f(DX,0.0f,-DZ);			// Third quad
+                CHECK_GL();
+                glVertex3f(DX,0.0f,DZ);
+                CHECK_GL();
+                glColor4ub(red,green,0x00,0x00);
+                CHECK_GL();
+                glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
+                CHECK_GL();
+                glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-				glVertex3f(-DX,0.0f,DZ);			// Fourth quad
-				glVertex3f(DX,0.0f,DZ);
-				glColor4ub(red,green,0x00,0x00);
-				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-				glEnd();
-				glDisable(GL_BLEND);
-				glEnable(GL_LIGHTING);
-				glEnable(GL_CULL_FACE);
-			}
-			glEnable(GL_FOG);
-		}
+                CHECK_GL();
+                glVertex3f(-DX,0.0f,DZ);			// Fourth quad
+                CHECK_GL();
+                glVertex3f(DX,0.0f,DZ);
+                CHECK_GL();
+                glColor4ub(red,green,0x00,0x00);
+                CHECK_GL();
+                glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
+                CHECK_GL();
+                glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
+                CHECK_GL();
+                glEnd();
+                CHECK_GL();
+                gfx->glDisable(GL_BLEND);
+                CHECK_GL();
+                gfx->glEnable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glEnable(GL_CULL_FACE);
+                CHECK_GL();
+            }
+            gfx->glEnable(GL_FOG);
+            CHECK_GL();
+        }
 
 
 		if ((selected || units->last_on >= 0) && TA3D_SHIFT_PRESSED)
 		{
-			glDisable(GL_FOG);
-			cam.setView();
+            gfx->glDisable(GL_FOG);
+            CHECK_GL();
+            cam.setView();
 			bool builders = false;
 			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
@@ -1001,12 +1439,14 @@ namespace TA3D
 					}
 				}
 			}
-			glEnable(GL_FOG);
-		}
+            gfx->glEnable(GL_FOG);
+            CHECK_GL();
+        }
 		if ((selected || units->last_on >= 0) && TA3D_CTRL_PRESSED)
 		{
-			glDisable(GL_FOG);
-			cam.setView();
+            gfx->glDisable(GL_FOG);
+            CHECK_GL();
+            cam.setView();
 			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
 			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
@@ -1051,8 +1491,9 @@ namespace TA3D
 					}
 				}
 			}
-			glEnable(GL_FOG);
-		}
+            gfx->glEnable(GL_FOG);
+            CHECK_GL();
+        }
 		if (showHealthBars)
 		{
 			cam.setView();

@@ -508,7 +508,8 @@ namespace TA3D
 			QImage background = gfx->load_image(filename);
             if (model && !background.isNull())
 			{
-                glViewport(0, 0, background.width(), background.height());           // Use picture viewport
+                gfx->glViewport(0, 0, background.width(), background.height());           // Use picture viewport
+                CHECK_GL();
                 gfx->width = background.width();
                 gfx->height = background.height();
 
@@ -537,9 +538,9 @@ namespace TA3D
 				// Direction
 				sun.Directionnal = true;
 
-				glEnable(GL_COLOR_MATERIAL);
-				lp_CONFIG->shadow_quality = 0;
-				lp_CONFIG->disable_GLSL = true;
+                gfx->glEnable(GL_COLOR_MATERIAL);
+                CHECK_GL();
+                lp_CONFIG->shadow_quality = 0;
 
 				gfx->SetDefState();
 				gfx->clearAll();
@@ -561,14 +562,17 @@ namespace TA3D
 				cam.setView();
 
 				glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
-				glRotatef(-25.0f, 0.0f, 1.0f, 0.0f);
+                CHECK_GL();
+                glRotatef(-25.0f, 0.0f, 1.0f, 0.0f);
+                CHECK_GL();
 
 				model->hideFlares();
 				model->draw(0.0f);
 
                 QImage result = gfx->create_surface_ex(24, background.width(), background.height());
-                glReadPixels(0, 0, result.width(), result.height(), GL_BGR, GL_UNSIGNED_BYTE, result.bits());
-				vflip_bitmap(result);
+                gfx->glReadPixels(0, 0, result.width(), result.height(), GL_BGR, GL_UNSIGNED_BYTE, result.bits());
+                CHECK_GL();
+                vflip_bitmap(result);
 				save_bitmap(outputfilename, result);
 
 				gfx->flip();

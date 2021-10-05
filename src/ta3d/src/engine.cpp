@@ -170,13 +170,15 @@ namespace TA3D
 	{
 		logs.checkpoint() << "OpenGL Informations :";
         logs.info() << "Vendor: "   << (const char*) gfx->glGetString(GL_VENDOR);
+        CHECK_GL();
         logs.info() << "Renderer: " << (const char*) gfx->glGetString(GL_RENDERER);
+        CHECK_GL();
         logs.info() << "Version: "  << (const char*) gfx->glGetString(GL_VERSION);
-		if (gfx->atiWorkaround())
+        CHECK_GL();
+        if (gfx->atiWorkaround())
 			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
 		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << (g_useTextureCompression ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << (g_useFBO ? "Yes" : "No"));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << (g_useProgram ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << (MultiTexturing ? "Yes" : "No"));
 	}
 } // namespace TA3D

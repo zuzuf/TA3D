@@ -58,6 +58,8 @@ namespace TA3D
 	class Vector3D;
     class Vector2D;
 
+    void checkGLerror(const char *filename, int line);
+#define CHECK_GL()  checkGLerror(__FILE__, __LINE__)
 
     class GFX : public QWindow, public QOpenGLFunctions, public ObjectSync, protected IInterface
 	{

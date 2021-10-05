@@ -383,47 +383,25 @@
 		value=1;
 		size=1.6;
 	}
-	[object35]		// Option "disable GLSL"
-	{
-		name=t_disable_GLSL;
-		type=TEXT;
-		caption=Disable GLSL;
-		help=disable GLSL shaders\nmay help if game crash;
-		x1=0;
-		y1=645;
-		value=0xFFFFFFFF;
-		size=2;
-	}
-	[object36]		// Option "disable GLSL"
-	{
-		name=disable_GLSL;
-		type=OPTIONC;
-		caption=;
-		help=disable GLSL shaders\nmay help if game crash;
-		x1=690;
-		y1=645;
-		value=1;
-		size=1.6;
-	}
-	[object37]		// Option "disable perspective"
+	[object35]		// Option "disable perspective"
 	{
 		name=t_disable_perspective;
 		type=TEXT;
 		caption=Disable perspective;
 		help=disable perspective\nTA3D will use an orthographic camera;
 		x1=0;
-		y1=680;
+		y1=645;
 		value=0xFFFFFFFF;
 		size=2;
 	}
-	[object38]		// Option "disable perspective"
+	[object36]		// Option "disable perspective"
 	{
 		name=disable_perspective;
 		type=OPTIONC;
 		caption=;
 		help=disable perspective\nTA3D will use an orthographic camera;
 		x1=690;
-		y1=680;
+		y1=645;
 		value=1;
 		size=1.6;
 	}

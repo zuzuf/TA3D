@@ -98,8 +98,6 @@ namespace TA3D
 
 		bool    underwater_bright;          // Render underwater objects brighter
 
-		bool    disable_GLSL;               // Disable GLSL shaders (they won't even be loaded so if there is a problem with them it won't crash)
-
 		bool    right_click_interface;      // Right click interface ?
 
 		bool    ortho_camera;               // Do we use orthographic camera ?

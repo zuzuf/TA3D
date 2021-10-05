@@ -2446,9 +2446,10 @@ namespace TA3D
 
 		Camera::inGame = NULL;
 
-		if (g_useProgram && g_useFBO && map->water)
+        if (g_useFBO && map->water)
 		{
             gfx->glDeleteFramebuffers(1, &water_FBO);
+            CHECK_GL();
             water_pass1 = nullptr;
             water_pass1_low = nullptr;
             water_pass2 = nullptr;

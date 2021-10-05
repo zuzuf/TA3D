@@ -48,7 +48,7 @@ namespace TA3D
 
     void Shader::load_memory(const QByteArray &fragment_data, const QByteArray &vertex_data)
 	{
-        if(!g_useProgram || lp_CONFIG->disable_GLSL || isLinked())
+        if(isLinked())
 			return;
 
         if (!addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_data))
@@ -77,7 +77,7 @@ namespace TA3D
 
 	void Shader::load(const QString& fragmentFilename, const QString& vertexFilename)
 	{
-        if(!g_useProgram || lp_CONFIG->disable_GLSL || isLinked())
+        if(isLinked())
             return;
 
         const QByteArray &fragment_shader_code = VFS::Instance()->readFileAsBuffer(fragmentFilename);
@@ -87,38 +87,32 @@ namespace TA3D
 
     void Shader::setvar1f(const char *var, const float v0)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, v0);
+        setUniformValue(var, v0);
 	}
 
     void Shader::setvar2f(const char *var, const float v0, const float v1)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, v0, v1);
+        setUniformValue(var, v0, v1);
     }
 
     void Shader::setvar3f(const char *var, const float v0, const float v1, const float v2)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, v0, v1, v2);
+        setUniformValue(var, v0, v1, v2);
     }
 
     void Shader::setvar4f(const char *var, const float v0, const float v1, const float v2, const float v3)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, v0, v1, v2, v3);
+        setUniformValue(var, v0, v1, v2, v3);
     }
 
     void Shader::setvar1i(const char *var, const int v0)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, v0);
+        setUniformValue(var, v0);
     }
 
     void Shader::setmat4f(const char *var, const GLfloat *mat)
 	{
-        if (!lp_CONFIG->disable_GLSL)
-            setUniformValue(var, QMatrix4x4(mat).transposed());
+        setUniformValue(var, QMatrix4x4(mat).transposed());
 	}
 
 // } // namespace GFX
