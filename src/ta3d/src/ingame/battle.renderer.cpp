@@ -185,7 +185,7 @@ namespace TA3D
 
             reflectex->bind();							// Store what's on screen for reflection effect
             CHECK_GL();
-            gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 512, 512, 0);
+            gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, 512, 512, 0);
             CHECK_GL();
 
             gfx->glViewport(0, 0, SCREEN_W, SCREEN_H);

@@ -713,12 +713,10 @@ namespace TA3D
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-			QImage tmp = gfx->create_surface_ex(32,512,512);
-
-			// Water transparency
-			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
+            // Water transparency
+            transtex = gfx->create_texture(512, 512, FILTER_LINEAR, true, GfxTexture::RGBA8_UNorm);
 			// Water reflection
-			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
+            reflectex = gfx->create_texture(512, 512, FILTER_LINEAR, true, GfxTexture::RGBA8_UNorm);
 			int ln2w = Math::Log2(SCREEN_W);
 			int ln2h = Math::Log2(SCREEN_H);
 			if ((1 << ln2w) < SCREEN_W)
@@ -731,14 +729,14 @@ namespace TA3D
 			if (lp_CONFIG->water_quality >= 5)
 				first_pass = gfx->create_texture_RGBA32F(workwidth, workheight, FILTER_NONE, false);
 			else
-				first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
-			// Water transparency/reflection
+                first_pass = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
+            // Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
 				second_pass = gfx->create_texture_RGBA16F(workwidth, workheight, FILTER_LINEAR, false);
 			else
-				second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
+                second_pass = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
 			// Water transparency/reflection
-			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
+            water_color = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
 			// Water simulation data
 			if (lp_CONFIG->water_quality >= 5)
 			{
@@ -815,13 +813,13 @@ namespace TA3D
 				for(int y = 0 ; y < h_h ; y++)
 					for(int x = 0 ; x < h_w ; x++)
 						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) * 0.00392156862745098f;	// / 255
-				height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true );
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true);
+                height_tex->setWrapMode(GfxTexture::ClampToBorder);
 				DELETE_ARRAY(data);
 			}
 
-			for (int z = 0 ; z < 512 ; ++z) // The wave base model
+            QImage tmp = gfx->create_surface_ex(32,512,512);
+            for (int z = 0 ; z < 512 ; ++z) // The wave base model
 			{
 				for (int x = 0 ; x < 512 ; ++x)
 				{

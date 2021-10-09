@@ -58,7 +58,7 @@ namespace TA3D
 	class Vector3D;
     class Vector2D;
 
-    void checkGLerror(const char *filename, int line);
+    bool checkGLerror(const char *filename, int line);
 #define CHECK_GL()  checkGLerror(__FILE__, __LINE__)
 
     class GFX : public QWindow, public QOpenGLFunctions, public ObjectSync, protected IInterface
@@ -208,7 +208,7 @@ namespace TA3D
 
         GfxTexture::Ptr make_texture( const QImage &bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
         GfxTexture::Ptr create_color_texture(uint32 color);
-        GfxTexture::Ptr create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true);
+        GfxTexture::Ptr create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true, GfxTexture::TextureFormat format = GfxTexture::RGB8_UNorm);
         GfxTexture::Ptr load_texture(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
         GfxTexture::Ptr load_texture_mask(const QString& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
         GfxTexture::Ptr load_texture_from_cache(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);

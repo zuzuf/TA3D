@@ -46,12 +46,12 @@
 namespace TA3D
 {
 
-    void checkGLerror(const char *filename, int line)
+    bool checkGLerror(const char *filename, int line)
     {
         GLuint err = glGetError();
         switch(err)
         {
-        case GL_NO_ERROR:   break;
+        case GL_NO_ERROR:   return false;
 #define IMPL_ERROR(X)   case X: std::cout << filename << " l." << line << " OpenGL error : " #X << std::endl; break;
         IMPL_ERROR(GL_INVALID_ENUM)
         IMPL_ERROR(GL_INVALID_VALUE)
@@ -63,6 +63,7 @@ namespace TA3D
         default:
             std::cout << filename << " l." << line << " Unknown OpenGL error : " << err << std::endl;
         }
+        return true;
     }
 
     TA3D::GFX::Ptr  TA3D::VARS::gfx;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
@@ -1013,7 +1014,9 @@ namespace TA3D
                           const float u2, const float v2,
                           const uint32 col)
 	{
-        tex->bind(GL_TEXTURE0);
+        gfx->glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+        tex->bind();
         CHECK_GL();
 
         GLfloat points[8] = { x1,y1, x2,y1,
@@ -1230,10 +1233,10 @@ namespace TA3D
         return tex;
     }
 
-    GfxTexture::Ptr GFX::create_texture(int w, int h, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::create_texture(int w, int h, int filter_type, bool clamp, GfxTexture::TextureFormat format)
 	{
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
-        tex->setFormat(GfxTexture::RGB8_UNorm);
+        tex->setFormat(format);
         tex->setSize(w, h);
         if (clamp)
             tex->setWrapMode(QOpenGLTexture::ClampToEdge);
@@ -1259,6 +1262,7 @@ namespace TA3D
             tex->setMagnificationFilter(QOpenGLTexture::Linear);
             break;
         }
+        tex->allocateStorage();
         return tex;
 	}
 
@@ -1933,19 +1937,8 @@ namespace TA3D
                 glGenFramebuffers(1, &textureFBO);
                 CHECK_GL();
             }
-            if (!textureColor)
-                textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
-            else
-            {
-                textureColor->bind();
-                CHECK_GL();
-                glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-                CHECK_GL();
-            }
 
             glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-            CHECK_GL();
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor->textureId(), 0);
             CHECK_GL();
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
             CHECK_GL();
