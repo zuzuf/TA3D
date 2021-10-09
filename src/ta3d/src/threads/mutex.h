@@ -22,14 +22,22 @@
 # include <QMutexLocker>
 # include <QWaitCondition>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+#define USE_QT_RECURSIVE_MUTEX_CLASS
+#endif
+
 namespace TA3D
 {
 
+#ifdef USE_QT_RECURSIVE_MUTEX_CLASS
+    using Mutex = QRecursiveMutex;
+#else
     class Mutex : public QMutex
     {
     public:
         Mutex() : QMutex(QMutex::Recursive) {}
     };
+#endif
 
     class MutexLocker : public QMutexLocker
     {
