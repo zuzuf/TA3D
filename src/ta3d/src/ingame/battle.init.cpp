@@ -673,7 +673,7 @@ namespace TA3D
 		water_obj->build((float)map->map_w, (float)map->map_h, 1000.0f);
 		water_sim0 = water_sim1 = water_sim2 = 0;
 
-        if (g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
+        if (map->water && lp_CONFIG->water_quality >= 2)
 		{
             gfx->glGenFramebuffers(1, &water_FBO);
             CHECK_GL();

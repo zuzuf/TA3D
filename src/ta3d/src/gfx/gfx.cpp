@@ -432,8 +432,8 @@ namespace TA3D
         {
             // We want a centered window
             const QRect &visible_area = screen()->geometry();
-            setPosition(visible_area.width() - TA3D::VARS::lp_CONFIG->screen_width >> 1,
-                        visible_area.height() - TA3D::VARS::lp_CONFIG->screen_height >> 1);
+            setPosition((visible_area.width() - TA3D::VARS::lp_CONFIG->screen_width) >> 1,
+                        (visible_area.height() - TA3D::VARS::lp_CONFIG->screen_height) >> 1);
         }
 
         m_context = new QOpenGLContext(this);
@@ -499,8 +499,6 @@ namespace TA3D
 
 	void GFX::checkConfig() const
 	{
-		if (!g_useFBO)
-			lp_CONFIG->water_quality = Math::Min(lp_CONFIG->water_quality, sint16(1));
 # ifdef TA3D_PLATFORM_MAC
 		// For some reasons, the texture compression makes ta3d completely unstable on OS X,
 		// at least with an ATI video card.
@@ -1871,61 +1869,39 @@ namespace TA3D
 
     void GFX::renderToTexture(const GfxTexture::Ptr &tex, bool useDepth)
 	{
-        if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
-        {
-            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
-            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, textureColor->width(), textureColor->height(), 0);
-            textureFBO = 0;
-            glViewport(0, 0, width, height);           // Use default viewport
-        }
-
         if (!tex)       // Release the texture
         {
-            if (g_useFBO)
-            {
-                gfx->glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
-                CHECK_GL();
-                gfx->glViewport(0, 0, width, height);           // Use default viewport
-                CHECK_GL();
-            }
+            gfx->glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
+            CHECK_GL();
+            gfx->glViewport(0, 0, width, height);           // Use default viewport
+            CHECK_GL();
         }
         else
         {
-            if (g_useFBO)               // If FBO extension is available then use it
+            if (textureFBO == 0)    // Generate a FBO if none has been created yet
             {
-                if (textureFBO == 0)    // Generate a FBO if none has been created yet
-                {
-                    gfx->glGenFramebuffers(1, &textureFBO);
-                    CHECK_GL();
-                }
+                gfx->glGenFramebuffers(1, &textureFBO);
+                CHECK_GL();
+            }
 
-                gfx->glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-                CHECK_GL();
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
-                CHECK_GL();
-                if (useDepth)
-                {
-                    if (!textureDepth || textureDepth->width() != tex->width() || textureDepth->height() != tex->height())
-                        textureDepth = create_texture(tex->width(), tex->height(), FILTER_LINEAR, true, GfxTexture::D24);
-                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureDepth->textureId(), 0); // Attach the texture
-                    CHECK_GL();
-                }
-                else
-                {
-                    gfx->glBindRenderbuffer(GL_RENDERBUFFER, 0);
-                    CHECK_GL();
-                    gfx->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-                    CHECK_GL();
-                }
-                gfx->glViewport(0, 0, tex->width(), tex->height());                                     // Stretch viewport to texture size
-                CHECK_GL();
-            }
-            else                        // We're going to render to back buffer and then copy back our work :)
+            gfx->glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+            CHECK_GL();
+            gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
+            CHECK_GL();
+            if (useDepth)
             {
-                textureFBO = tex;       // Save this here
-                gfx->glViewport(0, 0, tex->width(), tex->height());                                     // Stretch viewport to texture size
+                if (!textureDepth || textureDepth->width() != tex->width() || textureDepth->height() != tex->height())
+                    textureDepth = create_texture(tex->width(), tex->height(), FILTER_LINEAR, true, GfxTexture::D24);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureDepth->textureId(), 0); // Attach the texture
                 CHECK_GL();
             }
+            else
+            {
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0); // Dettach the texture
+                CHECK_GL();
+            }
+            gfx->glViewport(0, 0, tex->width(), tex->height());                                     // Stretch viewport to texture size
+            CHECK_GL();
         }
 	}
 
@@ -1950,6 +1926,8 @@ namespace TA3D
             }
 
             glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+            CHECK_GL();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0); // Dettach the texture
             CHECK_GL();
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
             CHECK_GL();

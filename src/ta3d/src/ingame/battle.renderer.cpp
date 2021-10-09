@@ -61,7 +61,7 @@ namespace TA3D
 	void Battle::renderReflection()
 	{
 		// Dessine les reflets sur l'eau / Render water reflection
-        if (g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
+        if (lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
 		{
 			reflection_drawn_last_time = true;
 
@@ -276,7 +276,7 @@ namespace TA3D
             CHECK_GL();
 			gfx->ReInitAllTex(true);
 
-            if (!g_useFBO || lp_CONFIG->water_quality < 2)
+            if (lp_CONFIG->water_quality < 2)
 			{
 				gfx->set_alpha_blending();
 				if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
