@@ -113,14 +113,20 @@ namespace Menus
 			pMessages.push_front(message);
 		}
 
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
 
-		glPushMatrix();
+        glPushMatrix();
+        CHECK_GL();
 
 		// Clear the screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gfx->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CHECK_GL();
 		// Draw the texture
         gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, float(SCREEN_W), float(SCREEN_H), makecol(0xFF,0xFF,0xFF));
 
@@ -134,24 +140,32 @@ namespace Menus
 		}
 
 		// Draw the progress bar
-		glDisable(GL_BLEND);
-		glDisable(GL_TEXTURE_2D);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
         gfx->rectfill(100.0f * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight,
                       (100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
                       makecol(127, 204, 76));
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
+        CHECK_GL();
         gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
                          1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
                          100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f,
                          makecol(0xFF,0xFF,0xFF));
-        glDisable(GL_BLEND);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
 
 		// Draw the caption (horizontally centered)
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
         Gui::gui_font->print(640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message) + 1.0f,
                              830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f + 1.0f,
                              makeacol(0, 0, 0, 0xFF),
@@ -160,9 +174,11 @@ namespace Menus
                              830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f,
                              0xFFFFFFFF,
                              message);
-		glDisable(GL_BLEND);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
 
 		glPopMatrix();
+        CHECK_GL();
 
 		// Flip the screen
 		gfx->flip();

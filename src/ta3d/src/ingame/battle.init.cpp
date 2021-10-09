@@ -678,10 +678,8 @@ namespace TA3D
             gfx->glGenFramebuffers(1, &water_FBO);
             CHECK_GL();
 
-			if (2 == lp_CONFIG->water_quality)
-                water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
-			else
-                water_pass1 = new Shader("shaders/water_pass1.frag","shaders/water_pass1.vert");
+            water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+            water_pass1 = new Shader("shaders/water_pass1.frag","shaders/water_pass1.vert");
             water_pass2 = new Shader("shaders/water_pass2.frag","shaders/water_pass2.vert");
 			if (2 == lp_CONFIG->water_quality)
 			{
@@ -849,6 +847,7 @@ namespace TA3D
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
             gfx->glBindFramebuffer(GL_FRAMEBUFFER,0);
+            CHECK_GL();
 
 			// Enable the texture compression
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)

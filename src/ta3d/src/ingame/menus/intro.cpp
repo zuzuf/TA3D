@@ -158,26 +158,31 @@ namespace Menus
 	void Intro::redrawTheScreen()
 	{
 		// Clear the screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Background
+        gfx->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CHECK_GL();
+        // Background
         gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, float(SCREEN_W), float(SCREEN_H), makecol(0xFF,0xFF,0xFF));
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
 
 		float fw = float(SCREEN_W) / 1280.0f;
 		//float fh = float(SCREEN_H) / 1024.0f;
 
 		// The text itself
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		if (Gui::gui_font)
+        CHECK_GL();
+        if (Gui::gui_font)
 		{
 			unsigned int indx = 0;
 			for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
                 Gui::gui_font->print(220.0f * fw, TA3D_INTRO_TOP + float(indx - 1) * pCurrentFontHeight - pDelta, White, pContent[i]);
 		}
 
-		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
+        gfx->glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
+        CHECK_GL();
         pBackgroundTexture->bind();
 		glBegin(GL_QUADS);
 
@@ -206,7 +211,8 @@ namespace Menus
 		glTexCoord2f(0.0f, (TA3D_INTRO_BOTTOM + 60.0f) / float(SCREEN_H));                  glVertex2f(0.0f, TA3D_INTRO_BOTTOM + 60.0f);
 
 		glEnd();
-		glDisable(GL_BLEND);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
 
 		// Flip
 		gfx->flip();

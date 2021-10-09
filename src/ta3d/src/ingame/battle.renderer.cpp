@@ -65,6 +65,8 @@ namespace TA3D
 		{
 			reflection_drawn_last_time = true;
 
+            gfx->renderToTexture(reflectex, true);
+
 			gfx->clearAll();		// Clear screen
 
             gfx->glViewport(0, 0, 512, 512);
@@ -183,11 +185,7 @@ namespace TA3D
             gfx->glDisable(GL_BLEND);
             CHECK_GL();
 
-            reflectex->bind();							// Store what's on screen for reflection effect
-            CHECK_GL();
-            gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, 512, 512, 0);
-            CHECK_GL();
-
+            gfx->renderToTexture();
             gfx->glViewport(0, 0, SCREEN_W, SCREEN_H);
             CHECK_GL();
 
@@ -258,12 +256,6 @@ namespace TA3D
                 CHECK_GL();
                 gfx->get_shadow_map()->bind();
                 CHECK_GL();
-//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-//                CHECK_GL();
-//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-//                CHECK_GL();
-//				glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-//                CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
                 CHECK_GL();
@@ -280,7 +272,8 @@ namespace TA3D
 			// Effets spéciaux sous-marins / Draw fx which are under water
 			fx_manager.draw(cam, map->sealvl, true);
 
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            CHECK_GL();
 			gfx->ReInitAllTex(true);
 
             if (!g_useFBO || lp_CONFIG->water_quality < 2)
@@ -303,6 +296,7 @@ namespace TA3D
 				else 	// lp_CONFIG->water_quality=0
 				{
 					glColor4f(1.0f,1.0f,1.0f,0.5f);
+                    CHECK_GL();
                     gfx->glDisable(GL_LIGHTING);
                     CHECK_GL();
 
@@ -487,9 +481,11 @@ namespace TA3D
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
-				water_obj->draw(t, true);
+                CHECK_GL();
+                water_obj->draw(t, true);
 
                 gfx->glDisable(GL_STENCIL_TEST);
+                CHECK_GL();
 
                 glMatrixMode(GL_TEXTURE);
                 CHECK_GL();
@@ -600,15 +596,10 @@ namespace TA3D
                 gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
                 CHECK_GL();
                 glBegin(GL_QUADS);
-                CHECK_GL();
                 glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-                CHECK_GL();
                 glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
-                CHECK_GL();
                 glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
-                CHECK_GL();
                 glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
-                CHECK_GL();
                 glEnd();
                 CHECK_GL();
                 gfx->glDisable(GL_STENCIL_TEST);
@@ -681,15 +672,10 @@ namespace TA3D
                     CHECK_GL();
 
 					glBegin( GL_QUADS );
-                    CHECK_GL();
-                    glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-                    CHECK_GL();
-                    glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-                    CHECK_GL();
-                    glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-                    CHECK_GL();
-                    glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-                    CHECK_GL();
+                    glTexCoord2f( 0, 0 ); glVertex2f( -1, -1 );
+                    glTexCoord2f( 1, 0 ); glVertex2f( 1, -1 );
+                    glTexCoord2f( 1, 1 ); glVertex2f( 1, 1 );
+                    glTexCoord2f( 0, 1 ); glVertex2f( -1, 1 );
                     glEnd();
                     CHECK_GL();
 
@@ -709,15 +695,10 @@ namespace TA3D
                     CHECK_GL();
 
 					glBegin( GL_QUADS );
-                    CHECK_GL();
-                    glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-                    CHECK_GL();
-                    glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-                    CHECK_GL();
-                    glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-                    CHECK_GL();
-                    glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-                    CHECK_GL();
+                    glTexCoord2f( 0, 0 ); glVertex2f( -1, -1 );
+                    glTexCoord2f( 1, 0 ); glVertex2f( 1, -1 );
+                    glTexCoord2f( 1, 1 ); glVertex2f( 1, 1 );
+                    glTexCoord2f( 0, 1 ); glVertex2f( -1, 1 );
                     glEnd();
                     CHECK_GL();
 
@@ -741,15 +722,10 @@ namespace TA3D
                 CHECK_GL();
 
 				glBegin( GL_QUADS );
-                CHECK_GL();
-                glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
-                CHECK_GL();
-                glTexCoord2i( 1, 0 ); glVertex2i( 1, -1 );
-                CHECK_GL();
-                glTexCoord2i( 1, 1 ); glVertex2i( 1, 1 );
-                CHECK_GL();
-                glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
-                CHECK_GL();
+                glTexCoord2f( 0, 0 ); glVertex2f( -1, -1 );
+                glTexCoord2f( 1, 0 ); glVertex2f( 1, -1 );
+                glTexCoord2f( 1, 1 ); glVertex2f( 1, 1 );
+                glTexCoord2f( 0, 1 ); glVertex2f( -1, 1 );
                 glEnd();
                 CHECK_GL();
 
@@ -1043,15 +1019,10 @@ namespace TA3D
                 gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
                 CHECK_GL();
                 glBegin(GL_QUADS);
-                CHECK_GL();
                 glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-                CHECK_GL();
                 glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
-                CHECK_GL();
                 glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
-                CHECK_GL();
                 glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
-                CHECK_GL();
                 glEnd();
                 CHECK_GL();
                 gfx->glDisable(GL_STENCIL_TEST);
@@ -1175,7 +1146,7 @@ namespace TA3D
         if (lp_CONFIG->particle)
             particle_engine.drawUW();
 
-//        renderWater();
+        renderWater();
 
         // Render map object icons (if in tactical mode)
         if (cam.rpos.y > gfx->low_def_limit)

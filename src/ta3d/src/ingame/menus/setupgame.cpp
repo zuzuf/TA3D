@@ -805,8 +805,9 @@ namespace Menus
 				gfx->set_2D_mode();
 				pArea->draw();
 
-				glEnable(GL_TEXTURE_2D);
-				gfx->set_color(0xFFFFFFFF);
+                gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
+                gfx->set_color(0xFFFFFFFF);
 				draw_cursor();
 
 				// Affiche / Show the buffer

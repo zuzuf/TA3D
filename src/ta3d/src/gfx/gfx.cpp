@@ -59,6 +59,7 @@ namespace TA3D
         IMPL_ERROR(GL_STACK_OVERFLOW)
         IMPL_ERROR(GL_STACK_UNDERFLOW)
         IMPL_ERROR(GL_OUT_OF_MEMORY)
+        IMPL_ERROR(GL_INVALID_FRAMEBUFFER_OPERATION)
 #undef IMPL_ERROR
         default:
             std::cout << filename << " l." << line << " Unknown OpenGL error : " << err << std::endl;
@@ -1014,6 +1015,7 @@ namespace TA3D
                           const float u2, const float v2,
                           const uint32 col)
 	{
+        CHECK_GL();
         gfx->glActiveTexture(GL_TEXTURE0);
         CHECK_GL();
         tex->bind();
@@ -1869,53 +1871,62 @@ namespace TA3D
 
     void GFX::renderToTexture(const GfxTexture::Ptr &tex, bool useDepth)
 	{
-//		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
-//		{
-//            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
-//            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, textureColor->width(), textureColor->height(), 0);
-//			textureFBO = 0;
-//			glViewport(0, 0, width, height);           // Use default viewport
-//		}
+        if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
+        {
+            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, textureColor->width(), textureColor->height(), 0);
+            textureFBO = 0;
+            glViewport(0, 0, width, height);           // Use default viewport
+        }
 
-//        if (!tex)       // Release the texture
-//		{
-//			if (g_useFBO)
-//			{
-//                glBindFramebuffer(GL_FRAMEBUFFER,0);     // Bind the default FBO
-//				glViewport(0, 0, width, height);           // Use default viewport
-//			}
-//		}
-//		else
-//		{
-//			if (g_useFBO)               // If FBO extension is available then use it
-//			{
-//				if (textureFBO == 0)    // Generate a FBO if none has been created yet
-//				{
-//                    glGenFramebuffers(1,&textureFBO);
-//                    glGenRenderbuffers(1,&textureDepth);
-//				}
+        if (!tex)       // Release the texture
+        {
+            if (g_useFBO)
+            {
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
+                CHECK_GL();
+                gfx->glViewport(0, 0, width, height);           // Use default viewport
+                CHECK_GL();
+            }
+        }
+        else
+        {
+            if (g_useFBO)               // If FBO extension is available then use it
+            {
+                if (textureFBO == 0)    // Generate a FBO if none has been created yet
+                {
+                    gfx->glGenFramebuffers(1, &textureFBO);
+                    CHECK_GL();
+                }
 
-//                glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-//                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0); // Attach the texture
-//				if (useDepth)
-//				{
-//                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, textureDepth);
-//                    glBindRenderbuffer(GL_RENDERBUFFER, textureDepth);
-//                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, tex->width(), tex->height());       // Should be enough
-//				}
-//				else
-//				{
-//                    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-//                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-//				}
-//                glViewport(0,0,tex->width(),tex->height());                                     // Stretch viewport to texture size
-//			}
-//			else                        // We're going to render to back buffer and then copy back our work :)
-//			{
-//				textureFBO = tex;       // Save this here
-//                glViewport(0,0,tex->width(),tex->height());                                     // Stretch viewport to texture size
-//			}
-//		}
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+                CHECK_GL();
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->textureId(), 0); // Attach the texture
+                CHECK_GL();
+                if (useDepth)
+                {
+                    if (!textureDepth || textureDepth->width() != tex->width() || textureDepth->height() != tex->height())
+                        textureDepth = create_texture(tex->width(), tex->height(), FILTER_LINEAR, true, GfxTexture::D24);
+                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureDepth->textureId(), 0); // Attach the texture
+                    CHECK_GL();
+                }
+                else
+                {
+                    gfx->glBindRenderbuffer(GL_RENDERBUFFER, 0);
+                    CHECK_GL();
+                    gfx->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+                    CHECK_GL();
+                }
+                gfx->glViewport(0, 0, tex->width(), tex->height());                                     // Stretch viewport to texture size
+                CHECK_GL();
+            }
+            else                        // We're going to render to back buffer and then copy back our work :)
+            {
+                textureFBO = tex;       // Save this here
+                gfx->glViewport(0, 0, tex->width(), tex->height());                                     // Stretch viewport to texture size
+                CHECK_GL();
+            }
+        }
 	}
 
 

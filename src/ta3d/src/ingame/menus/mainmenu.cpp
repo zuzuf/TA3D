@@ -138,10 +138,13 @@ namespace Menus
 		pDontWaitForEvent = true;
 
 		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+        CHECK_GL();
+        glLoadIdentity();
+        CHECK_GL();
 
-		glEnable(GL_TEXTURE_2D);
-		gfx->set_color(0xFFFFFFFF);
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->set_color(0xFFFFFFFF);
 
 		resetCaptions();
 
@@ -180,9 +183,11 @@ namespace Menus
 		{
 			lp_CONFIG->quickrestart = false;
 			glPushMatrix();
-			Config::Execute();
+            CHECK_GL();
+            Config::Execute();
 			lp_CONFIG->quickstart = false;
 			glPopMatrix();
+            CHECK_GL();
 
 			if (lp_CONFIG->quickrestart)
 			{
@@ -254,19 +259,22 @@ namespace Menus
 	bool MainMenu::goToMenuMultiPlayers()
 	{
 		glPushMatrix();
-		Menus::MultiMenu::Execute();
+        CHECK_GL();
+        Menus::MultiMenu::Execute();
 		glPopMatrix();
-		resetScreen();
+        CHECK_GL();
+        resetScreen();
 		return false;
 	}
 
 	bool MainMenu::goToMenuSolo()
 	{
-
 		glPushMatrix();
-		Menus::Solo::Execute();
+        CHECK_GL();
+        Menus::Solo::Execute();
 		glPopMatrix();
-		resetScreen();
+        CHECK_GL();
+        resetScreen();
 		return false;
 	}
 
