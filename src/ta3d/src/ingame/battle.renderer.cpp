@@ -25,6 +25,8 @@
 #include <misc/timer.h>
 #include <misc/paths.h>
 
+#include <iostream>
+
 
 namespace TA3D
 {
@@ -628,7 +630,9 @@ namespace TA3D
                 CHECK_GL();
 
                 gfx->glDisable(GL_DEPTH_TEST);
+                CHECK_GL();
                 gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
 
 				glMatrixMode (GL_PROJECTION);
                 CHECK_GL();

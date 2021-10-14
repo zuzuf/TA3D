@@ -743,12 +743,11 @@ namespace TA3D
 				const int simulation_h = 256;
 				water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
 				water_distortions = gfx->create_texture_RGB16F(workwidth, workheight, FILTER_NONE, false);
-				float *data = new float[ simulation_w * simulation_h * 4 ];
+                std::vector<float> data(simulation_w * simulation_h * 4, 0.f);
 				const int water_map_size = simulation_w * simulation_h;
 				const int water_map_size4 = simulation_w * simulation_h * 4;
 				const uint32 water_map_size4m = water_map_size4 - 1U;
 				const uint32 simulation_w4 = simulation_w * 4;
-				memset(data, 0, water_map_size4 * sizeof(float));
 
                 QString water_cache = TA3D::Paths::Caches + "water_cache.sim";
 
@@ -786,7 +785,7 @@ namespace TA3D
                     file.open(QIODevice::WriteOnly);
                     if (file.isOpen())
 					{
-						file.write((const char*)data, sizeof(float) * water_map_size4);
+                        file.write((const char*)data.data(), sizeof(float) * water_map_size4);
 						file.close();
 					}
 				}
@@ -796,24 +795,22 @@ namespace TA3D
                     file.open(QIODevice::ReadOnly);
                     if (file.isOpen())
 					{
-						file.read((char*)data, sizeof(float) * water_map_size4);
+                        file.read((char*)data.data(), sizeof(float) * water_map_size4);
 						file.close();
 					}
 				}
-				water_sim0 = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
-				water_sim1 = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
-				DELETE_ARRAY(data);
+                water_sim0 = gfx->make_texture_RGBA32F(256,256,data.data(),FILTER_NONE,false);
+                water_sim1 = gfx->make_texture_RGBA32F(256,256,data.data(),FILTER_NONE,false);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth
 				int h_w = Math::Min( map->bloc_w_db, gfx->max_texture_size() );
 				int h_h = Math::Min( map->bloc_h_db, gfx->max_texture_size() );
-				data = new float[ h_w * h_h ];
+                data.resize(h_w * h_h);
 				for(int y = 0 ; y < h_h ; y++)
 					for(int x = 0 ; x < h_w ; x++)
 						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) * 0.00392156862745098f;	// / 255
-                height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true);
+                height_tex = gfx->make_texture_A16F( h_w, h_h, data.data(), FILTER_LINEAR, true);
                 height_tex->setWrapMode(GfxTexture::ClampToBorder);
-				DELETE_ARRAY(data);
 			}
 
             QImage tmp = gfx->create_surface_ex(32,512,512);

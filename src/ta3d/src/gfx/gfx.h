@@ -219,10 +219,10 @@ namespace TA3D
         bool    is_texture_in_cache(const QString& file);
 		int     max_texture_size();
 
-        GfxTexture::Ptr make_texture_RGBA32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-        GfxTexture::Ptr make_texture_RGB16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-        GfxTexture::Ptr make_texture_RGBA16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-        GfxTexture::Ptr make_texture_A16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGBA32F( int w, int h, const float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGB16F( int w, int h, const float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGBA16F( int w, int h, const float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_A16F(int w, int h, const float *data, int filter_type = FILTER_NONE, bool clamp = false);
 
         GfxTexture::Ptr create_texture_RGBA32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
         GfxTexture::Ptr create_texture_RGB16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);

@@ -1058,165 +1058,164 @@ namespace TA3D
 
     GfxTexture::Ptr GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
     {
-        GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type <= FILTER_LINEAR ? QOpenGLTexture::DontGenerateMipMaps : QOpenGLTexture::GenerateMipMaps);
-//        tex->setFormat(QOpenGLTexture::RGB);
+        GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type <= FILTER_LINEAR ? GfxTexture::DontGenerateMipMaps : GfxTexture::GenerateMipMaps);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         tex->setMaximumAnisotropy(lp_CONFIG->anisotropy);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
 
         return tex;
 	}
 
-    GfxTexture::Ptr GFX::make_texture_A16F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_A16F( int w, int h, const float *data, int filter_type, bool clamp )
 	{
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
         tex->setFormat(GfxTexture::R16F);
         tex->setSize(w, h);
         tex->setData(GfxTexture::Alpha, GfxTexture::Float32, data);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
         return tex;
 	}
 
-    GfxTexture::Ptr GFX::make_texture_RGBA32F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGBA32F( int w, int h, const float *data, int filter_type, bool clamp )
 	{
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
         tex->setFormat(GfxTexture::RGBA32F);
         tex->setSize(w, h);
         tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
         return tex;
 	}
 
-    GfxTexture::Ptr GFX::make_texture_RGBA16F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGBA16F( int w, int h, const float *data, int filter_type, bool clamp )
 	{
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
         tex->setFormat(GfxTexture::RGBA16F);
         tex->setSize(w, h);
         tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
         return tex;
 	}
 
-    GfxTexture::Ptr GFX::make_texture_RGB16F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGB16F( int w, int h, const float *data, int filter_type, bool clamp )
 	{
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
         tex->setFormat(GfxTexture::RGB16F);
         tex->setSize(w, h);
         tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
         return tex;
@@ -1227,9 +1226,9 @@ namespace TA3D
         QImage img(QSize(1,1), QImage::Format_RGBA8888);
         img.setPixel(0,0, color);
         GfxTexture::Ptr tex = new GfxTexture(img);
-        tex->setWrapMode(QOpenGLTexture::Repeat);
-        tex->setMinificationFilter(QOpenGLTexture::Nearest);
-        tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+        tex->setWrapMode(GfxTexture::Repeat);
+        tex->setMinificationFilter(GfxTexture::Nearest);
+        tex->setMagnificationFilter(GfxTexture::Nearest);
         return tex;
     }
 
@@ -1239,27 +1238,27 @@ namespace TA3D
         tex->setFormat(format);
         tex->setSize(w, h);
         if (clamp)
-            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+            tex->setWrapMode(GfxTexture::ClampToEdge);
         else
-            tex->setWrapMode(QOpenGLTexture::Repeat);
+            tex->setWrapMode(GfxTexture::Repeat);
 
         switch (filter_type)
         {
         case FILTER_NONE:
-            tex->setMinificationFilter(QOpenGLTexture::Nearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            tex->setMinificationFilter(GfxTexture::Nearest);
+            tex->setMagnificationFilter(GfxTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::Linear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::Linear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            tex->setMinificationFilter(GfxTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(GfxTexture::Linear);
             break;
         }
         tex->allocateStorage();
@@ -2005,6 +2004,7 @@ namespace TA3D
         GfxTexture::Ptr shadowMapTexture = new GfxTexture(GfxTexture::Target2D);
         shadowMapTexture->setSize(w, h);
         shadowMapTexture->setFormat(GfxTexture::D24);
+        shadowMapTexture->allocateStorage();
 
 		if (lp_CONFIG->shadow_quality == 2)
 		{
@@ -2019,7 +2019,6 @@ namespace TA3D
         shadowMapTexture->setWrapMode(GfxTexture::ClampToEdge);
         shadowMapTexture->setComparisonFunction(GfxTexture::CompareLessEqual);
         shadowMapTexture->setComparisonMode(GfxTexture::CompareRefToTexture);
-        shadowMapTexture->allocateStorage();
 
 		return shadowMapTexture;
 	}
