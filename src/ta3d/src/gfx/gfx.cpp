@@ -1193,7 +1193,7 @@ namespace TA3D
         GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
         tex->setFormat(GfxTexture::RGB16F);
         tex->setSize(w, h);
-        tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
+        tex->setData(GfxTexture::RGB, GfxTexture::Float32, data);
         if (clamp)
             tex->setWrapMode(GfxTexture::ClampToEdge);
         else

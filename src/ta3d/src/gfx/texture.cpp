@@ -28,7 +28,6 @@ namespace TA3D
     GfxTexture::GfxTexture(Target target)
         : m_target(target),
           m_handle(0),
-          m_allocated(false),
           m_width(0),
           m_height(0),
           m_format(RGB8_UNorm)
@@ -151,7 +150,6 @@ namespace TA3D
         {
             gfx->glTexImage2D(m_target, 0, m_format, m_width, m_height, 0, pixel_format, pixel_type, data);
             CHECK_GL();
-            m_allocated = true;
         }
     }
 
@@ -159,9 +157,56 @@ namespace TA3D
     {
         if (bind())
         {
-            gfx->glTexParameterf(m_target, GL_MAX_TEXTURE_MAX_ANISOTROPY, max_anisotropy);
+            gfx->glTexParameterf(m_target, GL_TEXTURE_MAX_ANISOTROPY, std::min(16.f, std::max(1.f, max_anisotropy)));
             CHECK_GL();
         }
+    }
+
+    void GfxTexture::allocateStorage()
+    {
+        PixelFormat pixel_format;
+        PixelType pixel_type;
+        switch(m_format)
+        {
+        case RGB8_UNorm:
+            pixel_format = RGB;
+            pixel_type = UInt8;
+            break;
+        case RGBA8_UNorm:
+            pixel_format = RGBA;
+            pixel_type = UInt8;
+            break;
+        case RGB16F:
+            pixel_format = RGB;
+            pixel_type = Float16;
+            break;
+        case RGBA16F:
+            pixel_format = RGBA;
+            pixel_type = Float16;
+            break;
+        case R16F:
+            pixel_format = Red;
+            pixel_type = Float16;
+            break;
+        case R32F:
+            pixel_format = Red;
+            pixel_type = Float32;
+            break;
+        case Y8_UNorm:
+            pixel_format = Luminance;
+            pixel_type = UInt8;
+            break;
+        case D16:
+        case D24:
+        case D32:
+        case D32F:
+            pixel_format = Depth;
+            pixel_type = Float32;
+            break;
+        default:
+            throw std::runtime_error("Unsupported type : " + std::to_string(m_format));
+        }
+        allocateStorage(pixel_format, pixel_type);
     }
 
     void GfxTexture::allocateStorage(PixelFormat pixel_format, PixelType pixel_type)
@@ -196,7 +241,6 @@ namespace TA3D
     {
         m_width = w;
         m_height = h;
-        m_allocated = false;
     }
 
     GLint GfxTexture::textureId() const

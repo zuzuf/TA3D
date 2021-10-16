@@ -303,7 +303,8 @@ namespace TA3D
         void setData(PixelFormat pixel_format, PixelType pixel_type, const void *data);
         void setFormat(TextureFormat format);
         void setMaximumAnisotropy(float max_anisotropy);
-        void allocateStorage(PixelFormat pixel_format = RGB, PixelType pixel_type = UInt8);
+        void allocateStorage(PixelFormat pixel_format, PixelType pixel_type);
+        void allocateStorage();
 
         void setComparisonFunction(ComparisonFunction function);
         void setComparisonMode(ComparisonMode mode);
@@ -321,7 +322,6 @@ namespace TA3D
     private:
         Target m_target;
         GLuint m_handle;
-        bool m_allocated;
         int m_width;
         int m_height;
         TextureFormat m_format;
