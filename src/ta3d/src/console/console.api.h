@@ -46,7 +46,6 @@ namespace TA3D
 		static int setInternalName(lua_State *L);
 		static int setInternalIdx(lua_State *L);
 		static int exit(lua_State *L);
-		static int setWireframe(lua_State *L);
 		static int setPriority(lua_State *L);
 		static int setWaterQuality(lua_State *L);
 		static int setShadowQuality(lua_State *L);

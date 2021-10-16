@@ -222,14 +222,6 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::setWireframe(lua_State *L)
-	{
-		if (lua_gettop(L) > 0)
-			lp_CONFIG->wireframe = lua_toboolean(L, -1);
-		lua_pushboolean(L, lp_CONFIG->wireframe);
-		return 1;
-	}
-
 	int CAPI::setPriority(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
@@ -863,7 +855,6 @@ namespace TA3D
 		CAPI_REGISTER(setInternalName);
 		CAPI_REGISTER(setInternalIdx);
 		CAPI_REGISTER(exit);
-		CAPI_REGISTER(setWireframe);
 		CAPI_REGISTER(setPriority);
 		CAPI_REGISTER(setWaterQuality);
 		CAPI_REGISTER(setShadowQuality);

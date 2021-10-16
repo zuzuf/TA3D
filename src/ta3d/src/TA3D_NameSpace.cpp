@@ -84,7 +84,6 @@ namespace TA3D
 		screen_height = 600;
 		color_depth = 32;
 		showfps = false;
-		wireframe = false;
 		particle = true;
 		explosion_particles = true;
 		waves = true;

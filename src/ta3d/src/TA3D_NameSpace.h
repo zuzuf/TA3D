@@ -66,7 +66,6 @@ namespace TA3D
 		uint8	shadowmap_size;	// 0 -> lower (256x256), 1 -> low (512x512), 2 -> normal (1024x1024), 3 -> high (2048x2048)
 
 		bool    showfps;
-		bool    wireframe;
 		bool    particle;
 		bool    explosion_particles;
 		bool    waves;

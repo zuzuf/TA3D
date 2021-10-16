@@ -76,7 +76,6 @@ namespace Settings
                << "            Screen Height = " << TA3D::VARS::lp_CONFIG->screen_height << ";\n"
                << "              Color Depth = " << (int)TA3D::VARS::lp_CONFIG->color_depth << ";\n"
                << "                 Show FPS = " << TA3D::VARS::lp_CONFIG->showfps << ";\n"
-               << "           Show Wireframe = " << TA3D::VARS::lp_CONFIG->wireframe << ";\n"
                << "           Show particles = " << TA3D::VARS::lp_CONFIG->particle << ";\n"
                << " Show explosion particles = " << TA3D::VARS::lp_CONFIG->explosion_particles << ";\n"
                << "               Show Waves = " << TA3D::VARS::lp_CONFIG->waves << ";\n"
@@ -167,7 +166,6 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->color_depth = uint8(cfgFile.pullAsInt("TA3D.Color Depth", 32));
 
 		TA3D::VARS::lp_CONFIG->showfps = cfgFile.pullAsBool("TA3D.Show FPS");
-		TA3D::VARS::lp_CONFIG->wireframe = cfgFile.pullAsBool("TA3D.Show Wireframe");
 		TA3D::VARS::lp_CONFIG->explosion_particles = cfgFile.pullAsBool("TA3D.Show explosion particles", true);
 		TA3D::VARS::lp_CONFIG->particle = cfgFile.pullAsBool("TA3D.Show particles");
 		TA3D::VARS::lp_CONFIG->waves = cfgFile.pullAsBool("TA3D.Show Waves");

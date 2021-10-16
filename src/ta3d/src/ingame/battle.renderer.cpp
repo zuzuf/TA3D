@@ -137,21 +137,9 @@ namespace TA3D
 
 			if (cam.rpos.y <= gfx->low_def_limit && lp_CONFIG->water_quality >= 4)
 			{
-				if (lp_CONFIG->wireframe)
-                {
-					glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-                    CHECK_GL();
-                }
-
 				map->draw(&refcam, byte(1 << players.local_human_id),  false, 0.0f, t,
 						  dt * units->apparent_timefactor,
 						  false, false, false);
-
-				if (lp_CONFIG->wireframe)
-                {
-					glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-                    CHECK_GL();
-                }
 
 				// Dessine les éléments "2D" / "sprites"
 				features->draw(render_time);
@@ -1109,19 +1097,7 @@ namespace TA3D
         CHECK_GL();
         updateZFAR();
 
-		if (lp_CONFIG->wireframe)
-        {
-            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-            CHECK_GL();
-        }
-
         map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units->apparent_timefactor);
-
-		if (lp_CONFIG->wireframe)
-        {
-			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-            CHECK_GL();
-        }
 
 		cam.setView(lp_CONFIG->shadow_quality < 2);
 
