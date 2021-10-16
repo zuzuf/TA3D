@@ -336,13 +336,12 @@ namespace TA3D
 				// First pass of water rendering, store reflection vector
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
                 CHECK_GL();
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass->textureId(), 0);
+                CHECK_GL();
+                gfx->glViewport(0,0,512,512);
                 CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
-                CHECK_GL();
-
-                gfx->glViewport(0,0,512,512);
                 CHECK_GL();
 
                 gfx->glActiveTexture(GL_TEXTURE0);
@@ -391,7 +390,7 @@ namespace TA3D
                 }
 
 				cam.setView(true);
-				glTranslatef(0.0f,map->sealvl,0.0f);
+                glTranslatef(0.0f,map->sealvl,0.0f);
                 CHECK_GL();
                 water_obj->draw(t, true);
 
@@ -759,7 +758,7 @@ namespace TA3D
 				// Render water distortion effects (ripples, waves, ...)
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
                 CHECK_GL();
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_distortions, 0);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_distortions->textureId(), 0);
                 CHECK_GL();
                 gfx->glClearColor(0,0,0,0);
                 CHECK_GL();
@@ -785,7 +784,7 @@ namespace TA3D
 				// First pass of water rendering, store reflection vector
                 gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
                 CHECK_GL();
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass->textureId(), 0);
                 CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
@@ -815,7 +814,7 @@ namespace TA3D
                 water_simulator_shader4->release();
                 CHECK_GL();
 
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass->textureId(), 0);					// Second pass of water rendering, store viewing vector
                 CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
@@ -841,7 +840,7 @@ namespace TA3D
 
                 water_pass2->release();
 
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color->textureId(), 0);					// Third pass of water rendering, store water color
                 CHECK_GL();
 
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon

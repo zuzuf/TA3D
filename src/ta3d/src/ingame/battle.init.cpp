@@ -681,33 +681,24 @@ namespace TA3D
             water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
             water_pass1 = new Shader("shaders/water_pass1.frag","shaders/water_pass1.vert");
             water_pass2 = new Shader("shaders/water_pass2.frag","shaders/water_pass2.vert");
-			if (2 == lp_CONFIG->water_quality)
-			{
-				if (map->ota_data.whitefog)
-                    water_shader = new Shader("shaders/water_fog.frag","shaders/water.vert");
-				else
-                    water_shader = new Shader("shaders/water.frag","shaders/water.vert");
-			}
-			else
-			{
-				if (map->ota_data.whitefog)
-                    water_shader_reflec = new Shader("shaders/water_fog.frag","shaders/water.vert");
-				else
-                    water_shader_reflec = new Shader("shaders/water_reflec.frag","shaders/water.vert");
-			}
+            if (map->ota_data.whitefog)
+                water_shader = new Shader("shaders/water_fog.frag","shaders/water.vert");
+            else
+                water_shader = new Shader("shaders/water.frag","shaders/water.vert");
+            if (map->ota_data.whitefog)
+                water_shader_reflec = new Shader("shaders/water_fog.frag","shaders/water.vert");
+            else
+                water_shader_reflec = new Shader("shaders/water_reflec.frag","shaders/water.vert");
 
-			if (5 == lp_CONFIG->water_quality)
-			{
-                water_simulator_shader = new Shader("shaders/water_simulator.frag","shaders/water_simulator.vert");     // Compute variation speed
-                water_simulator_shader2 = new Shader("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
-                water_simulator_shader3 = new Shader("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
-                water_simulator_shader4 = new Shader("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
-                water_distortions_shader = new Shader("shaders/water_distortions.frag","shaders/water_distortions.vert");	// Distortions renderer
-				if (map->ota_data.whitefog)
-                    water_simulator_reflec = new Shader("shaders/water_sim_fog.frag","shaders/water.vert");
-				else
-                    water_simulator_reflec = new Shader("shaders/water_sim_reflec.frag","shaders/water.vert");
-			}
+            water_simulator_shader = new Shader("shaders/water_simulator.frag","shaders/water_simulator.vert");     // Compute variation speed
+            water_simulator_shader2 = new Shader("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
+            water_simulator_shader3 = new Shader("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
+            water_simulator_shader4 = new Shader("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
+            water_distortions_shader = new Shader("shaders/water_distortions.frag","shaders/water_distortions.vert");	// Distortions renderer
+            if (map->ota_data.whitefog)
+                water_simulator_reflec = new Shader("shaders/water_sim_fog.frag","shaders/water.vert");
+            else
+                water_simulator_reflec = new Shader("shaders/water_sim_reflec.frag","shaders/water.vert");
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
@@ -728,21 +719,27 @@ namespace TA3D
 				first_pass = gfx->create_texture_RGBA32F(workwidth, workheight, FILTER_NONE, false);
 			else
                 first_pass = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
+            first_pass->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+
             // Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
 				second_pass = gfx->create_texture_RGBA16F(workwidth, workheight, FILTER_LINEAR, false);
 			else
                 second_pass = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
-			// Water transparency/reflection
+            second_pass->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+            // Water transparency/reflection
             water_color = gfx->create_texture(512, 512, FILTER_LINEAR, true,GfxTexture::RGBA8_UNorm);
-			// Water simulation data
+            water_color->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+            // Water simulation data
 			if (lp_CONFIG->water_quality >= 5)
 			{
 				last_water_refresh = msectimer();
 				const int simulation_w = 256;
 				const int simulation_h = 256;
 				water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
-				water_distortions = gfx->create_texture_RGB16F(workwidth, workheight, FILTER_NONE, false);
+                water_sim2->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+                water_distortions = gfx->create_texture_RGB16F(workwidth, workheight, FILTER_NONE, false);
+                water_distortions->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
                 std::vector<float> data(simulation_w * simulation_h * 4, 0.f);
 				const int water_map_size = simulation_w * simulation_h;
 				const int water_map_size4 = simulation_w * simulation_h * 4;
@@ -801,6 +798,8 @@ namespace TA3D
 				}
                 water_sim0 = gfx->make_texture_RGBA32F(256,256,data.data(),FILTER_NONE,false);
                 water_sim1 = gfx->make_texture_RGBA32F(256,256,data.data(),FILTER_NONE,false);
+                water_sim0->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+                water_sim1->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth
 				int h_w = Math::Min( map->bloc_w_db, gfx->max_texture_size() );
@@ -811,7 +810,8 @@ namespace TA3D
 						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) * 0.00392156862745098f;	// / 255
                 height_tex = gfx->make_texture_A16F( h_w, h_h, data.data(), FILTER_LINEAR, true);
                 height_tex->setWrapMode(GfxTexture::ClampToBorder);
-			}
+                height_tex->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
+            }
 
             QImage tmp = gfx->create_surface_ex(32,512,512);
             for (int z = 0 ; z < 512 ; ++z) // The wave base model
@@ -843,6 +843,7 @@ namespace TA3D
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
+            water->setAutoMipMapGenerationEnabled(GfxTexture::DontGenerateMipMaps);
             gfx->glBindFramebuffer(GL_FRAMEBUFFER,0);
             CHECK_GL();
 

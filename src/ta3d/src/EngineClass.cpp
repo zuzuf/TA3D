@@ -2134,9 +2134,11 @@ namespace TA3D
 
 	void WATER::draw(float t, bool shaded)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glTranslatef(cosf(t),0.0f,sinf(t));
-		if (shaded)
+        gfx->glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+        glTranslatef(cosf(t),0.0f,sinf(t));
+        CHECK_GL();
+        if (shaded)
 		{
 			glBegin(GL_QUADS);
 			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex3f(-map_w,0.0f,-map_h);
@@ -2166,6 +2168,7 @@ namespace TA3D
 			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,-map_h,0.0f);
 			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,map_h,0.0f);
 			glEnd();
+            CHECK_GL();
 			return;
 		}
 		glBegin(GL_QUADS);
@@ -2175,8 +2178,10 @@ namespace TA3D
 		glTexCoord2f(0.0f,1.0f);		glVertex3f(-map_w*0.5f,0.0f,map_h*0.5f);
 		glEnd();
 
-		glDisable( GL_TEXTURE_2D );
-		glColor4ub(0,0,0,0xFF);
+        gfx->glDisable( GL_TEXTURE_2D );
+        CHECK_GL();
+        glColor4ub(0,0,0,0xFF);
+        CHECK_GL();
 
 		glBegin(GL_QUADS);
 		glVertex3f(-map_w,0.0f,-map_h);
@@ -2199,7 +2204,8 @@ namespace TA3D
 		glVertex3f(map_w,0.0f,map_h*0.5f);
 		glVertex3f(map_w*0.5f,0.0f,map_h*0.5f);
 		glEnd();
-	}
+        CHECK_GL();
+    }
 
 } // namespace TA3D
 
