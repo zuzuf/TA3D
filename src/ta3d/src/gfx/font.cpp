@@ -73,10 +73,12 @@ namespace TA3D
 			return;
 
         gfx->glEnable(GL_BLEND);
+        CHECK_GL();
         gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
+        CHECK_GL();
+        for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
 		{
-            QPointF pos(x, y + 0.5f * metrics->height());
+            QPointF pos(x, y + metrics->ascent());
             for(int i = 0 ; i < text.size() ; ++i)
             {
                 const QChar &c = text[i];
@@ -93,7 +95,7 @@ namespace TA3D
                     painter.setFont(*font);
                     painter.drawText(QPointF(-metrics->leftBearing(c), metrics->ascent()), QString(c));
 
-                    it = glyphs.insert(c, gfx->make_texture(img, FILTER_NONE));
+                    it = glyphs.insert(c, gfx->make_texture(img, FILTER_TRILINEAR));
                 }
                 const GfxTexture::Ptr &tex = it.value();
                 const QPointF origin(pos.x() + metrics->leftBearing(c),
@@ -143,7 +145,7 @@ namespace TA3D
 	{
         if (!font)
             return 0.f;
-        return metrics->ascent();
+        return metrics->lineSpacing();
 	}
 
 	int Font::get_size()
