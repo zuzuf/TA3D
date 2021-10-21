@@ -63,10 +63,8 @@ namespace TA3D
 	void Battle::renderReflection()
 	{
 		// Dessine les reflets sur l'eau / Render water reflection
-        if (lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
+        if (lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld)
 		{
-			reflection_drawn_last_time = true;
-
             gfx->renderToTexture(reflectex, true);
 
 			gfx->clearAll();		// Clear screen
@@ -181,8 +179,6 @@ namespace TA3D
 
 			gfx->SetDefState();
 		}
-		else
-			reflection_drawn_last_time = false;
 	}
 
 	void Battle::renderShadowMap()
@@ -1498,8 +1494,6 @@ namespace TA3D
 		{
 			for (int x = 0; x < w; x += SCREEN_W / 2)
 			{
-				reflection_drawn_last_time = false;		// We need to refresh everything
-
 				// Set camera to current part of the scene
 				cam.rpos = camBak.rpos
 						   + camBak.zoomFactor

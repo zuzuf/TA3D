@@ -867,7 +867,6 @@ namespace TA3D
 		dt = 0.0f;
 		t = 0.0f;
 		count = msectimer();
-		reflection_drawn_last_time = false;
 
 		mx = my = 0;
 		omb = mouse_b;

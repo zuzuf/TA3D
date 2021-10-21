@@ -429,8 +429,6 @@ namespace TA3D
 		//!
 		int count;
 		//!
-		bool reflection_drawn_last_time;
-		//!
 		int video_timer;
 		//!
 		bool video_shoot;
