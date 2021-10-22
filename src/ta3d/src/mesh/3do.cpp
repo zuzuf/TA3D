@@ -774,9 +774,11 @@ namespace TA3D
 
 	bool Mesh3DO::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
-		bool culling = glIsEnabled(GL_CULL_FACE);
-		glEnable(GL_CULL_FACE);
-		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
+        bool culling = gfx->glIsEnabled(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glEnable(GL_CULL_FACE);
+        CHECK_GL();
+        bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
 		bool set = false;
 		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -790,24 +792,33 @@ namespace TA3D
 		if (!(explodes && !exploding_parts))
 		{
 			glPushMatrix();
+            CHECK_GL();
 
 			glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
-			if (script_index >= 0 && data_s)
+            CHECK_GL();
+            if (script_index >= 0 && data_s)
 			{
 				if (!explodes ^ exploding_parts)
 				{
 					glTranslatef(data_s->data[script_index].axe[0].pos, data_s->data[script_index].axe[1].pos, data_s->data[script_index].axe[2].pos);
-					glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
-					glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
-					glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
-				}
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
+                    CHECK_GL();
+                }
 				hide = data_s->data[script_index].flag & FLAG_HIDE;
 			}
 
 			hide |= explodes ^ exploding_parts;
 			if (chg_col)
+            {
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
-			int texID = player_color_map[side];
+                CHECK_GL();
+            }
+            int texID = player_color_map[side];
 			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !gltex.empty())
 				texID = (int)(((int)(t * 10.0f)) % gltex.size());
@@ -818,35 +829,57 @@ namespace TA3D
 					if (!alset)
 					{
 						glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-						glEnableClientState(GL_NORMAL_ARRAY);
-						if (notex)
+                        CHECK_GL();
+                        glEnableClientState(GL_NORMAL_ARRAY);
+                        CHECK_GL();
+                        if (notex)
+                        {
 							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-						else
+                            CHECK_GL();
+                        }
+                        else
+                        {
 							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-						glEnable(GL_LIGHTING);
-						if (notex)
-							glDisable(GL_TEXTURE_2D);
-						else
-							glEnable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                        }
+                        gfx->glEnable(GL_LIGHTING);
+                        CHECK_GL();
+                        if (notex)
+                        {
+                            gfx->glDisable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                        }
+                        else
+                        {
+                            gfx->glEnable(GL_TEXTURE_2D);
+                            CHECK_GL();
+                        }
 						alset = true;
 					}
 					if (chg_col || !notex)
 					{
 						if (chg_col && color_factor[3] != 1.0f) // La transparence
 						{
-							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-							glEnable(GL_BLEND);
-						}
+                            gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                            CHECK_GL();
+                            gfx->glEnable(GL_BLEND);
+                            CHECK_GL();
+                        }
 						else
-							glDisable(GL_BLEND);
-					}
+                        {
+                            gfx->glDisable(GL_BLEND);
+                            CHECK_GL();
+                        }
+                    }
 					set = true;
 					if (gltex.empty())
 					{
 						alset = false;
-						glDisable(GL_TEXTURE_2D);
-						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					}
+                        gfx->glDisable(GL_TEXTURE_2D);
+                        CHECK_GL();
+                        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                        CHECK_GL();
+                    }
 					if (!notex && !gltex.empty())
 					{
 						if (texID < (int)gltex.size() && texID >= 0)
@@ -854,19 +887,26 @@ namespace TA3D
 						else
                             gltex[0]->bind();
 						glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-					}
+                        CHECK_GL();
+                    }
 					glVertexPointer(3, GL_FLOAT, 0, points);
-					glNormalPointer(GL_FLOAT, 0, N);
-					switch(type)
+                    CHECK_GL();
+                    glNormalPointer(GL_FLOAT, 0, N);
+                    CHECK_GL();
+                    switch(type)
 					{
 					case MESH_TYPE_TRIANGLES:
 						glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-						break;
+                        CHECK_GL();
+                        break;
 					case MESH_TYPE_TRIANGLE_STRIP:
-						glDisable( GL_CULL_FACE );
-						glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-						glEnable( GL_CULL_FACE );
-						break;
+                        gfx->glDisable( GL_CULL_FACE );
+                        CHECK_GL();
+                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                        CHECK_GL();
+                        gfx->glEnable( GL_CULL_FACE );
+                        CHECK_GL();
+                        break;
 					};
 				}
 			}
@@ -874,108 +914,164 @@ namespace TA3D
 			if (nb_l_index > 0 && nb_vtx > 0)
 			{
 				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				alset = false;
+                CHECK_GL();
+                glDisableClientState(GL_NORMAL_ARRAY);
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                alset = false;
 				if (!set)
+                {
 					glVertexPointer( 3, GL_FLOAT, 0, points);
-				set = true;
-				glDrawElements(GL_LINES, nb_l_index,GL_UNSIGNED_SHORT,l_index);		// dessine le tout
-			}
+                    CHECK_GL();
+                }
+                set = true;
+                gfx->glDrawElements(GL_LINES, nb_l_index,GL_UNSIGNED_SHORT,l_index);		// dessine le tout
+                CHECK_GL();
+            }
 #endif
 			if (sel_primitive && selprim >= 0 && nb_vtx > 0) // && (data_s==NULL || (data_s!=NULL && !data_s->explode))) {
 			{
 				gfx->disable_model_shading();
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				glDisable(GL_FOG);
-				if (!set)
+                CHECK_GL();
+                glDisableClientState(GL_NORMAL_ARRAY);
+                CHECK_GL();
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                gfx->glDisable(GL_FOG);
+                CHECK_GL();
+                if (!set)
+                {
 					glVertexPointer( 3, GL_FLOAT, 0, points);
-				glColor3ub(0,0xFF,0);
-				glTranslatef( 0.0f, 2.0f, 0.0f );
-				glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
-				glTranslatef( 0.0f, -2.0f, 0.0f );
-				if (notex)
+                    CHECK_GL();
+                }
+                glColor3ub(0,0xFF,0);
+                CHECK_GL();
+                glTranslatef( 0.0f, 2.0f, 0.0f );
+                CHECK_GL();
+                glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+                CHECK_GL();
+                glTranslatef( 0.0f, -2.0f, 0.0f );
+                CHECK_GL();
+                if (notex)
 				{
                     const int var = std::abs(int(0xFF - (msectimer() % 1000) * 0x200 / 1000));
 					glColor3ub(0, GLubyte(var), 0);
-				}
+                    CHECK_GL();
+                }
 				else
+                {
 					glColor3ub(0xFF, 0xFF, 0xFF);
-				alset = false;
+                    CHECK_GL();
+                }
+                alset = false;
 				gfx->enable_model_shading();
-				glEnable(GL_FOG);
-			}
+                gfx->glEnable(GL_FOG);
+                CHECK_GL();
+            }
 			if (chg_col)
+            {
 				glColor4fv(color_factor);
-			if (child && !(explodes && !exploding_parts))
+                CHECK_GL();
+            }
+            if (child && !(explodes && !exploding_parts))
 				alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
 			glPopMatrix();
-		}
+            CHECK_GL();
+        }
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
 
 		if (!culling)
-			glDisable(GL_CULL_FACE);
-		return alset;
+        {
+            gfx->glDisable(GL_CULL_FACE);
+            CHECK_GL();
+        }
+        return alset;
 	}
 
 	bool Mesh3DO::draw_nodl(bool alset)
 	{
-		bool culling = glIsEnabled(GL_CULL_FACE);
-		glPushMatrix();
+        bool culling = gfx->glIsEnabled(GL_CULL_FACE);
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
 
 		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+        CHECK_GL();
 
 		if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 		{
 			if (!alset)
 			{
                 glEnableClientState(GL_VERTEX_ARRAY);		// Vertices
-				glEnableClientState(GL_NORMAL_ARRAY);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glEnable(GL_LIGHTING);
-				glEnable(GL_TEXTURE_2D);
-				alset = true;
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glEnable(GL_BLEND);
-			}
+                CHECK_GL();
+                glEnableClientState(GL_NORMAL_ARRAY);
+                CHECK_GL();
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                gfx->glEnable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
+                alset = true;
+                gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                CHECK_GL();
+                gfx->glEnable(GL_BLEND);
+                CHECK_GL();
+            }
 			if (gltex.empty())
 			{
 				alset = false;
-				glDisable(GL_TEXTURE_2D);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			}
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+            }
 			if (!gltex.empty())
 			{
                 gltex[0]->bind();
 				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-			}
+                CHECK_GL();
+            }
 			glVertexPointer(3, GL_FLOAT, 0, points);
-			glNormalPointer(GL_FLOAT, 0, N);
-			switch(type)
+            CHECK_GL();
+            glNormalPointer(GL_FLOAT, 0, N);
+            CHECK_GL();
+            switch(type)
 			{
 			case MESH_TYPE_TRIANGLES:
 				glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-				break;
+                CHECK_GL();
+                break;
 			case MESH_TYPE_TRIANGLE_STRIP:
-				glDisable( GL_CULL_FACE );
-				glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-				glEnable( GL_CULL_FACE );
-				break;
+                gfx->glDisable( GL_CULL_FACE );
+                CHECK_GL();
+                glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                CHECK_GL();
+                gfx->glEnable( GL_CULL_FACE );
+                CHECK_GL();
+                break;
 			};
 		}
 		if (child)
 			alset = child->draw_nodl(alset);
 		glPopMatrix();
-		if (next)
+        CHECK_GL();
+        if (next)
 			alset = next->draw_nodl(alset);
 		if (!culling)
-			glDisable(GL_CULL_FACE);
+        {
+            gfx->glDisable(GL_CULL_FACE);
+            CHECK_GL();
+        }
 
 		return alset;
 	}

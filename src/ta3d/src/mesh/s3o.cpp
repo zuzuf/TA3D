@@ -95,17 +95,23 @@ namespace TA3D
 		if (!(explodes && !exploding_parts))
 		{
 			glPushMatrix();
+            CHECK_GL();
 
 			glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
-			if (script_index >= 0 && data_s)
+            CHECK_GL();
+            if (script_index >= 0 && data_s)
 			{
 				if (!explodes ^ exploding_parts)
 				{
 					glTranslatef(data_s->data[script_index].axe[0].pos, data_s->data[script_index].axe[1].pos, data_s->data[script_index].axe[2].pos);
-					glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
-					glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
-					glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
-				}
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
+                    CHECK_GL();
+                    glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
+                    CHECK_GL();
+                }
 				hide = data_s->data[script_index].flag & FLAG_HIDE;
 			}
 			else if (animation_data && data_s == NULL)
@@ -114,10 +120,14 @@ namespace TA3D
 				Vector3D T;
 				animation_data->animate(t, R, T);
 				glTranslatef(T.x, T.y, T.z);
-				glRotatef(R.x, 1.0f, 0.0f, 0.0f);
-				glRotatef(R.y, 0.0f, 1.0f, 0.0f);
-				glRotatef(R.z, 0.0f, 0.0f, 1.0f);
-			}
+                CHECK_GL();
+                glRotatef(R.x, 1.0f, 0.0f, 0.0f);
+                CHECK_GL();
+                glRotatef(R.y, 0.0f, 1.0f, 0.0f);
+                CHECK_GL();
+                glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                CHECK_GL();
+            }
 
             std::vector<GfxTexture::Ptr> *pTex = &(root->gltex);
 
@@ -133,18 +143,18 @@ namespace TA3D
                         CHECK_GL();
                         glEnableClientState(GL_NORMAL_ARRAY);
                         CHECK_GL();
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         CHECK_GL();
                         glAlphaFunc( GL_GREATER, 0.1f );
                         CHECK_GL();
-                        glEnable(GL_LIGHTING);
+                        gfx->glEnable(GL_LIGHTING);
                         CHECK_GL();
                         alset = true;
                         set = true;
                     }
-                    glEnable(GL_BLEND);
+                    gfx->glEnable(GL_BLEND);
                     CHECK_GL();
-                    glEnable( GL_ALPHA_TEST );
+                    gfx->glEnable( GL_ALPHA_TEST );
                     CHECK_GL();
 
                     if (!notex) // Les textures et effets de texture
@@ -183,9 +193,9 @@ namespace TA3D
                         activated_tex = true;
                         for (uint32 j = 0; j < pTex->size() ; ++j)
                         {
-                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            gfx->glActiveTexture(GL_TEXTURE0 + j);
                             CHECK_GL();
-                            glEnable(GL_TEXTURE_2D);
+                            gfx->glEnable(GL_TEXTURE_2D);
                             CHECK_GL();
                             (*pTex)[j]->bind();
                             CHECK_GL();
@@ -204,9 +214,9 @@ namespace TA3D
                     {
                         for (int j = 6; j >= 0; --j)
                         {
-                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            gfx->glActiveTexture(GL_TEXTURE0 + j);
                             CHECK_GL();
-                            glDisable(GL_TEXTURE_2D);
+                            gfx->glDisable(GL_TEXTURE_2D);
                             CHECK_GL();
                             glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                             CHECK_GL();
@@ -215,7 +225,7 @@ namespace TA3D
                         }
                         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                         CHECK_GL();
-                        glEnable(GL_TEXTURE_2D);
+                        gfx->glEnable(GL_TEXTURE_2D);
                         CHECK_GL();
                         gfx->default_texture->bind();
                         CHECK_GL();
@@ -249,33 +259,33 @@ namespace TA3D
                             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                             CHECK_GL();
 
-                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            gfx->glActiveTexture(GL_TEXTURE0 + j);
                             CHECK_GL();
-                            glDisable(GL_TEXTURE_2D);
+                            gfx->glDisable(GL_TEXTURE_2D);
                             CHECK_GL();
                             glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
                             CHECK_GL();
-                            glDisable(GL_TEXTURE_GEN_S);
+                            gfx->glDisable(GL_TEXTURE_GEN_S);
                             CHECK_GL();
-                            glDisable(GL_TEXTURE_GEN_T);
+                            gfx->glDisable(GL_TEXTURE_GEN_T);
                             CHECK_GL();
-                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                            gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                             CHECK_GL();
-                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                            gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                             CHECK_GL();
                         }
                         glClientActiveTextureARB(GL_TEXTURE0_ARB);
                         CHECK_GL();
-                        glActiveTextureARB(GL_TEXTURE0_ARB);
+                        gfx->glActiveTexture(GL_TEXTURE0);
                         CHECK_GL();
-                        glEnable(GL_TEXTURE_2D);
+                        gfx->glEnable(GL_TEXTURE_2D);
                         CHECK_GL();
                     }
                     if (!notex)
                         s3oShader->release();
-                    glDisable(GL_BLEND);
+                    gfx->glDisable(GL_BLEND);
                     CHECK_GL();
-                    glDisable(GL_ALPHA_TEST);
+                    gfx->glDisable(GL_ALPHA_TEST);
                     CHECK_GL();
                 }
 			}
@@ -287,13 +297,13 @@ namespace TA3D
                 CHECK_GL();
                 glDisableClientState(GL_NORMAL_ARRAY);
                 CHECK_GL();
-                glDisable(GL_LIGHTING);
+                gfx->glDisable(GL_LIGHTING);
                 CHECK_GL();
-                glDisable(GL_TEXTURE_2D);
+                gfx->glDisable(GL_TEXTURE_2D);
                 CHECK_GL();
-                glDisable(GL_FOG);
+                gfx->glDisable(GL_FOG);
                 CHECK_GL();
-                glDisable(GL_BLEND);
+                gfx->glDisable(GL_BLEND);
                 CHECK_GL();
                 if (!set)
                 {
@@ -353,15 +363,15 @@ namespace TA3D
                 CHECK_GL();
                 glEnableClientState(GL_NORMAL_ARRAY);
                 CHECK_GL();
-                glEnable(GL_BLEND);
+                gfx->glEnable(GL_BLEND);
                 CHECK_GL();
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 CHECK_GL();
                 glAlphaFunc( GL_GREATER, 0.1f );
                 CHECK_GL();
-                glEnable( GL_ALPHA_TEST );
+                gfx->glEnable( GL_ALPHA_TEST );
                 CHECK_GL();
-                glEnable(GL_LIGHTING);
+                gfx->glEnable(GL_LIGHTING);
                 CHECK_GL();
                 alset = true;
 			}
@@ -374,9 +384,9 @@ namespace TA3D
                 CHECK_GL();
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 CHECK_GL();
-                glActiveTextureARB(GL_TEXTURE0_ARB);
+                gfx->glActiveTexture(GL_TEXTURE0);
                 CHECK_GL();
-                glEnable(GL_TEXTURE_2D);
+                gfx->glEnable(GL_TEXTURE_2D);
                 CHECK_GL();
                 (*pTex)[j]->bind();
                 CHECK_GL();
@@ -394,11 +404,11 @@ namespace TA3D
                 CHECK_GL();
                 break;
             case MESH_TYPE_TRIANGLE_STRIP:
-                glDisable( GL_CULL_FACE );
+                gfx->glDisable( GL_CULL_FACE );
                 CHECK_GL();
                 glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
                 CHECK_GL();
-                glEnable( GL_CULL_FACE );
+                gfx->glEnable( GL_CULL_FACE );
                 CHECK_GL();
                 break;
             };
@@ -410,26 +420,26 @@ namespace TA3D
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 CHECK_GL();
 
-				glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                gfx->glActiveTexture(GL_TEXTURE0 + j);
                 CHECK_GL();
-                glDisable(GL_TEXTURE_2D);
+                gfx->glDisable(GL_TEXTURE_2D);
                 CHECK_GL();
                 glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
                 CHECK_GL();
-                glDisable(GL_TEXTURE_GEN_S);
+                gfx->glDisable(GL_TEXTURE_GEN_S);
                 CHECK_GL();
-                glDisable(GL_TEXTURE_GEN_T);
+                gfx->glDisable(GL_TEXTURE_GEN_T);
                 CHECK_GL();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 CHECK_GL();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 CHECK_GL();
             }
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
             CHECK_GL();
-            glActiveTextureARB(GL_TEXTURE0_ARB);
+            gfx->glActiveTexture(GL_TEXTURE0);
             CHECK_GL();
-            glEnable(GL_TEXTURE_2D);
+            gfx->glEnable(GL_TEXTURE_2D);
             CHECK_GL();
         }
 		if (child)

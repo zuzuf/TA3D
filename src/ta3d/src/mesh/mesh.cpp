@@ -1276,12 +1276,16 @@ namespace TA3D
 		sel &= !gfx->getShadowMapMode();        // Don't render selection primitive while in shadow map mode !! otherwise it would cast a shadow :/
 
 		if (notex)
-			glDisable(GL_TEXTURE_2D);
-		if (chg_col && notex)
+        {
+            gfx->glDisable(GL_TEXTURE_2D);
+            CHECK_GL();
+        }
+        if (chg_col && notex)
 		{
 			const byte var = (byte)abs(255 - (((int)(t * 256) & 0xFF) << 1));
-			glColor3ub(0, var, 0);
-		}
+            glColor3ub(0, var, 0);
+            CHECK_GL();
+        }
 
         mesh->draw(t, data_s, sel, false, notex, side, chg_col);
         if (data_s && data_s->explode)
@@ -1295,8 +1299,11 @@ namespace TA3D
 			mesh->compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
 		}
 		if (chg_col && notex)
+        {
 			glColor3ub(0xFF,0xFF,0xFF);
-	}
+            CHECK_GL();
+        }
+    }
 
 
 	void Model::compute_coord(AnimationData* data_s, Matrix* M) const

@@ -1298,8 +1298,10 @@ namespace TA3D
 		const float rw = 128.0f * (float)mini_w / 252.0f / (float)map_w;
 		const float rh = 128.0f * (float)mini_h / 252.0f / (float)map_h;
 
-		glDisable(GL_TEXTURE_2D);
-		glPointSize(3.0f);
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glPointSize(3.0f);
+        CHECK_GL();
 
 		const byte mask = byte(1 << players.local_human_id);
 		int b_w = (int) map_w >> 3;
@@ -1352,42 +1354,72 @@ namespace TA3D
 		}
 		pMutex.unlock();
 		glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
-		glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);		// vertex coordinates
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);		// vertex coordinates
+        CHECK_GL();
 
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, mini_col);
-		glVertexPointer( 2, GL_FLOAT, 0, mini_pos);
-		glPushMatrix();
-		glTranslatef( 63.0f, 64.0f, 0.0f );
-		glScalef( rw, rh, 0.0f );
-		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
+        glVertexPointer( 2, GL_FLOAT, 0, mini_pos);
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
+        glTranslatef( 63.0f, 64.0f, 0.0f );
+        CHECK_GL();
+        glScalef( rw, rh, 0.0f );
+        CHECK_GL();
+        gfx->glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
 
 		glPopMatrix();
-		glPushMatrix();
-		glTranslatef( 65.0f, 64.0f, 0.0f );
-		glScalef( rw, rh, 0.0f );
-		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
+        glTranslatef( 65.0f, 64.0f, 0.0f );
+        CHECK_GL();
+        glScalef( rw, rh, 0.0f );
+        CHECK_GL();
+        gfx->glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
 
 		glPopMatrix();
-		glPushMatrix();
-		glTranslatef( 64.0f, 65.0f, 0.0f );
-		glScalef( rw, rh, 0.0f );
-		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
+        glTranslatef( 64.0f, 65.0f, 0.0f );
+        CHECK_GL();
+        glScalef( rw, rh, 0.0f );
+        CHECK_GL();
+        gfx->glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
 
 		glPopMatrix();
-		glPushMatrix();
-		glTranslatef( 64.0f, 63.0f, 0.0f );
-		glScalef( rw, rh, 0.0f );
-		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
+        glTranslatef( 64.0f, 63.0f, 0.0f );
+        CHECK_GL();
+        glScalef( rw, rh, 0.0f );
+        CHECK_GL();
+        gfx->glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
 
 		glPopMatrix();
-		glPushMatrix();
-		glTranslatef( 64.0f, 64.0f, 0.0f );
-		glScalef( rw, rh, 0.0f );
-		for( int i = 0 ; i < nb ; i++ )
+        CHECK_GL();
+        glPushMatrix();
+        CHECK_GL();
+        glTranslatef( 64.0f, 64.0f, 0.0f );
+        CHECK_GL();
+        glScalef( rw, rh, 0.0f );
+        CHECK_GL();
+        for( int i = 0 ; i < nb ; i++ )
             mini_col[ i ] = player_col_32[ (mini_col[ i ] >> 24) & 0xFF ];
-		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
-		glPopMatrix();
+        gfx->glDrawArrays(GL_POINTS, 0, nb);		// draw the points
+        CHECK_GL();
+        glPopMatrix();
+        CHECK_GL();
 
 		int cur_id = -1;
 		glBegin( GL_POINTS );
@@ -1447,8 +1479,11 @@ namespace TA3D
 		}
 		pMutex.unlock();
 		glEnd();
-		glPointSize(1.0f);
-		glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glPointSize(1.0f);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
 
 		last_on = -1;
 	}
@@ -1578,19 +1613,31 @@ namespace TA3D
 		if (nb_unit <= 0 || !unit)
 			return;		// Pas d'unités à dessiner
 
-		glEnable(GL_LIGHTING);
-		if (cullface)
-			glEnable(GL_CULL_FACE);
-		else
-			glDisable(GL_CULL_FACE);
+        gfx->glEnable(GL_LIGHTING);
+        CHECK_GL();
+        if (cullface)
+        {
+            gfx->glEnable(GL_CULL_FACE);
+            CHECK_GL();
+        }
+        else
+        {
+            gfx->glDisable(GL_CULL_FACE);
+            CHECK_GL();
+        }
 
-		glDisable(GL_BLEND);
-		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		const float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
+        CHECK_GL();
+        const float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
 		const float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
 		const bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
 		if (low_def)
-			glDisable(GL_DEPTH_TEST);
+        {
+            gfx->glDisable(GL_DEPTH_TEST);
+            CHECK_GL();
+        }
 
 		for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
@@ -1605,13 +1652,20 @@ namespace TA3D
 				pUnit->draw(virtual_t, height_line);
 		}
 
-		glDisable(GL_ALPHA_TEST);
+        gfx->glDisable(GL_ALPHA_TEST);
+        CHECK_GL();
 
 		if (low_def)
-			glEnable(GL_DEPTH_TEST);
+        {
+            gfx->glEnable(GL_DEPTH_TEST);
+            CHECK_GL();
+        }
 
 		if (!cullface)
-			glEnable(GL_CULL_FACE);
+        {
+            gfx->glEnable(GL_CULL_FACE);
+            CHECK_GL();
+        }
 	}
 
 	bool INGAME_UNITS::remove_order(int player_id, const Vector3D& target)
@@ -1865,14 +1919,21 @@ namespace TA3D
 		if (nb_unit <= 0 || !unit)
 			return;		// Pas d'unités à dessiner
 
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
 
-		glDisable(GL_BLEND);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_FOG);
-		glDepthMask(GL_FALSE);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        gfx->glDisable(GL_DEPTH_TEST);
+        CHECK_GL();
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glDisable(GL_FOG);
+        CHECK_GL();
+        gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
 
 		hbars.clear();
 		hbars_bkg.clear();
@@ -1882,22 +1943,35 @@ namespace TA3D
 			unit[*e].drawHealthBar();
 
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, &(hbars_bkg.front()));
-		glColor4ub(0,0,0,0xFF);
-		glDrawArrays(GL_QUADS, 0, (GLsizei)hbars_bkg.size());
+        CHECK_GL();
+        glVertexPointer(3, GL_FLOAT, 0, &(hbars_bkg.front()));
+        CHECK_GL();
+        glColor4ub(0,0,0,0xFF);
+        CHECK_GL();
+        gfx->glDrawArrays(GL_QUADS, 0, (GLsizei)hbars_bkg.size());
+        CHECK_GL();
 
-		glVertexPointer(3, GL_FLOAT, 0, &(hbars.front()));
-		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(hbars_color.front()));
-		glDrawArrays(GL_QUADS, 0, (GLsizei)hbars.size());
+        glVertexPointer(3, GL_FLOAT, 0, &(hbars.front()));
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(hbars_color.front()));
+        CHECK_GL();
+        gfx->glDrawArrays(GL_QUADS, 0, (GLsizei)hbars.size());
+        CHECK_GL();
 
 		glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
 
-		glDepthMask(GL_TRUE);
-		glEnable(GL_FOG);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-	}
+        gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
+        gfx->glEnable(GL_FOG);
+        CHECK_GL();
+        gfx->glEnable(GL_DEPTH_TEST);
+        CHECK_GL();
+        gfx->glEnable(GL_CULL_FACE);
+        CHECK_GL();
+    }
 
 } // namespace TA3D
 

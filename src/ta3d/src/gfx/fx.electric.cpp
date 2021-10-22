@@ -72,6 +72,7 @@ namespace TA3D
 			glVertex3fv((const GLfloat*) &p);
         }
         glEnd();
+        CHECK_GL();
     }
 
 

@@ -212,24 +212,26 @@ namespace TA3D
 		uint32 n(0);
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
         gfx->glEnable(GL_TEXTURE_2D);
-		for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
 		{
 			const uint32 i = *e;
 			if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor)
 			{
-                gfx->glEnable(GL_TEXTURE_2D);
-                gfx->glEnable(GL_BLEND);
-                gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				const int idx = weapon[i].owner;
+                const int idx = weapon[i].owner;
                 gfx->drawtexture(nuclogo.glbmp[idx],
                                  weapon[i].Pos.x * rw + 64.0f - float(nuclogo.ofs_x[idx]),
                                  weapon[i].Pos.z * rh + 64.0f - float(nuclogo.ofs_y[idx]),
                                  weapon[i].Pos.x * rw + 63.0f - float(nuclogo.ofs_x[idx] + nuclogo.w[idx]),
                                  weapon[i].Pos.z * rh + 63.0f - float(nuclogo.ofs_y[idx] + nuclogo.h[idx]),
                                  makecol(0xFF, 0xFF, 0xFF));
-                gfx->glDisable(GL_BLEND);
-			}
+            }
 			else
 			{
 				points[n].x = weapon[i].Pos.x * rw + 64.0f;
@@ -237,18 +239,28 @@ namespace TA3D
 				++n;
 			}
 		}
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
         gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
 
-		glDisableClientState(GL_NORMAL_ARRAY);              // Render all points in one pass
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer( 2, GL_FLOAT, 0, &(points.front()));
+        glDisableClientState(GL_NORMAL_ARRAY);              // Render all points in one pass
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        CHECK_GL();
+        glVertexPointer( 2, GL_FLOAT, 0, &(points.front()));
+        CHECK_GL();
 
         gfx->glDrawArrays( GL_POINTS, 0, n );
+        CHECK_GL();
 
         gfx->glEnable(GL_TEXTURE_2D);
-	}
+        CHECK_GL();
+    }
 
 
 	void InGameWeapons::proc(void*)

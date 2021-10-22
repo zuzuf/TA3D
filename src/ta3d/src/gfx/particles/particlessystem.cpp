@@ -84,7 +84,9 @@ namespace TA3D
         gfx->particle_shader->setUniformValue("uModelViewMatrix", modelViewMatrix);
         tex->bind();
         gfx->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, pos);
+        CHECK_GL();
         gfx->glDrawArrays(GL_POINTS, 0, nb_particles);
+        CHECK_GL();
     }
 
 

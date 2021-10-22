@@ -64,47 +64,72 @@ namespace TA3D
         if (queue.empty())
             return;
         glPushMatrix();
+        CHECK_GL();
 
 		Model *model = model_manager.model[ model_id ];
 
 		if (model->from_2d)
-            glEnable(GL_ALPHA_TEST);
+        {
+            gfx->glEnable(GL_ALPHA_TEST);
+            CHECK_GL();
+        }
 
-        glEnable(GL_LIGHTING);
-        glDisable(GL_BLEND);
+        gfx->glEnable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
 
         for (const Instance &i : queue)
         {
             glPopMatrix();
+            CHECK_GL();
             glPushMatrix();
+            CHECK_GL();
             glTranslatef( i.pos.x, i.pos.y, i.pos.z );
+            CHECK_GL();
             if (lp_CONFIG->underwater_bright && INSTANCING::water && i.pos.y < INSTANCING::sealvl)
 			{
                 double eqn[4]= { 0.0f, -1.0f, 0.0f, INSTANCING::sealvl - i.pos.y };
 				glClipPlane(GL_CLIP_PLANE2, eqn);
-			}
+                CHECK_GL();
+            }
             glRotatef( i.angle, 0.0f, 1.0f, 0.0f );
+            CHECK_GL();
             glColor4ubv( (GLubyte*) &i.col );
+            CHECK_GL();
             model->mesh->draw_nodl();
             if (lp_CONFIG->underwater_bright && INSTANCING::water && i.pos.y < INSTANCING::sealvl)
 			{
-				glEnable(GL_CLIP_PLANE2);
-				glEnable( GL_BLEND );
-				glBlendFunc( GL_ONE, GL_ONE );
-				glDepthFunc( GL_EQUAL );
-				glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-				model->draw(0.0f, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
+                gfx->glEnable(GL_CLIP_PLANE2);
+                CHECK_GL();
+                gfx->glEnable( GL_BLEND );
+                CHECK_GL();
+                gfx->glBlendFunc( GL_ONE, GL_ONE );
+                CHECK_GL();
+                gfx->glDepthFunc( GL_EQUAL );
+                CHECK_GL();
+                glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                CHECK_GL();
+                model->draw(0.0f, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
 				glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-				glDepthFunc( GL_LESS );
-				glDisable( GL_BLEND );
-				glDisable(GL_CLIP_PLANE2);
-			}
+                CHECK_GL();
+                gfx->glDepthFunc( GL_LESS );
+                CHECK_GL();
+                gfx->glDisable( GL_BLEND );
+                CHECK_GL();
+                gfx->glDisable(GL_CLIP_PLANE2);
+                CHECK_GL();
+            }
         }
 
         if (model->from_2d)
-            glDisable(GL_ALPHA_TEST);
+        {
+            gfx->glDisable(GL_ALPHA_TEST);
+            CHECK_GL();
+        }
 
         glPopMatrix();
+        CHECK_GL();
     }
 
 
@@ -167,18 +192,27 @@ namespace TA3D
 		}
 
         glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
+        CHECK_GL();
         glEnableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnable( GL_TEXTURE_2D );
+        CHECK_GL();
+        gfx->glEnable( GL_TEXTURE_2D );
+        CHECK_GL();
         glColorPointer(4,GL_UNSIGNED_BYTE,0,C);
+        CHECK_GL();
         glVertexPointer( 3, GL_FLOAT, 0, P);
+        CHECK_GL();
         glTexCoordPointer(2, GL_FLOAT, 0, T);
+        CHECK_GL();
 
         for (auto qq = hash_table.begin() ; qq != hash_table.end() ; ++qq)
                 qq.value().draw_queue(qq.key(), P, C);
 
         glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
     }
 
 
@@ -220,7 +254,8 @@ namespace TA3D
 			++p;
         }
         texture_id->bind();
-		glDrawArrays(GL_QUADS, 0, (GLsizei)queue.size() << 2);		// draw those quads
+        gfx->glDrawArrays(GL_QUADS, 0, (GLsizei)queue.size() << 2);		// draw those quads
+        CHECK_GL();
 
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
@@ -254,17 +289,28 @@ namespace TA3D
             if (i > 0)
             {
 				glColor4ub(0x7F,0x7F,0x7F,0x7F);
-				glDisableClientState(GL_COLOR_ARRAY);
-				glEnable( GL_BLEND );
-                glDisable( GL_TEXTURE_2D );
-                glBlendFunc( GL_ONE, GL_ONE );
-                glDepthFunc( GL_EQUAL );
-                glDrawArrays(GL_QUADS, 0, i << 2);		// draw those quads
-                glDepthFunc( GL_LESS );
-                glEnable( GL_TEXTURE_2D );
-                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-				glEnableClientState(GL_COLOR_ARRAY);
-			}
+                CHECK_GL();
+                glDisableClientState(GL_COLOR_ARRAY);
+                CHECK_GL();
+                gfx->glEnable( GL_BLEND );
+                CHECK_GL();
+                gfx->glDisable( GL_TEXTURE_2D );
+                CHECK_GL();
+                gfx->glBlendFunc( GL_ONE, GL_ONE );
+                CHECK_GL();
+                gfx->glDepthFunc( GL_EQUAL );
+                CHECK_GL();
+                gfx->glDrawArrays(GL_QUADS, 0, i << 2);		// draw those quads
+                CHECK_GL();
+                gfx->glDepthFunc( GL_LESS );
+                CHECK_GL();
+                gfx->glEnable( GL_TEXTURE_2D );
+                CHECK_GL();
+                gfx->glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                CHECK_GL();
+                glEnableClientState(GL_COLOR_ARRAY);
+                CHECK_GL();
+            }
         }
     }
 

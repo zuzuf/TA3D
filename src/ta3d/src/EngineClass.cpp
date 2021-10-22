@@ -767,8 +767,11 @@ namespace TA3D
 		if (fog_of_war != FOW_DISABLED)
 		{
             gfx->glEnable( GL_BLEND );
+            CHECK_GL();
             gfx->glBlendFunc( GL_ZERO, GL_SRC_COLOR );			// Special blending function
+            CHECK_GL();
             gfx->glDisable( GL_TEXTURE_2D );
+            CHECK_GL();
 
 			int MY = 0;
 			const int DY = 0x10000 * ( bloc_h_db - 2 ) / rh;
@@ -852,14 +855,21 @@ namespace TA3D
 			}
 
 			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_COLOR_ARRAY);
-			glVertexPointer(2, GL_FLOAT, 0, &(lines.front()));
-			glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors.front()));
+            CHECK_GL();
+            glEnableClientState(GL_COLOR_ARRAY);
+            CHECK_GL();
+            glVertexPointer(2, GL_FLOAT, 0, &(lines.front()));
+            CHECK_GL();
+            glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors.front()));
+            CHECK_GL();
 
-			glDrawArrays(GL_LINES, 0, (GLsizei)lines.size());
+            gfx->glDrawArrays(GL_LINES, 0, (GLsizei)lines.size());
+            CHECK_GL();
 
 			glDisableClientState(GL_COLOR_ARRAY);
-			glDisable(GL_BLEND);
+            CHECK_GL();
+            gfx->glDisable(GL_BLEND);
+            CHECK_GL();
 
 			gfx->unlock();
 		}
@@ -1131,13 +1141,16 @@ namespace TA3D
 			{
 				cam->setView(true);
 				GLdouble eq[] = { cam->dir.x, cam->dir.y, cam->dir.z, -map_zfar + 64.0f - cam->rpos % cam->dir};
-				glClipPlane(GL_CLIP_PLANE3, eq);
-				glEnable(GL_CLIP_PLANE3);
+                glClipPlane(GL_CLIP_PLANE3, eq);
+                CHECK_GL();
+                gfx->glEnable(GL_CLIP_PLANE3);
+                CHECK_GL();
 
 				draw_LD(player_mask, FLAT, niv, t);
 
-				glDisable(GL_CLIP_PLANE3);
-			}
+                gfx->glDisable(GL_CLIP_PLANE3);
+                CHECK_GL();
+            }
 
             cam->setView(lp_CONFIG->shadow_quality < 2 || FLAT);
 			if (lp_CONFIG->far_sight)
@@ -1157,20 +1170,32 @@ namespace TA3D
 	{
 		gfx->lock();
 
-		glPushMatrix();
+        glPushMatrix();
+        CHECK_GL();
 
 		if (FLAT)
+        {
 			glTranslatef(0.0f, 0.0f, sea_dec);
+            CHECK_GL();
+        }
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_LIGHTING);
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
         if (!FLAT && !tex.empty())
 			gfx->ReInitAllTex( true );
 		if (!FLAT)
+        {
 			glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+            CHECK_GL();
+        }
 
 		if (FLAT)
+        {
 			glTranslatef(cosf(t), 0.0f, sinf(t));
+            CHECK_GL();
+        }
 
 		int i = 0;
 		for (int y = 0; y <= low_h; ++y)
@@ -1197,30 +1222,47 @@ namespace TA3D
 		}
 
 		glDisableClientState(GL_NORMAL_ARRAY);		// we don't need normal data
-		glEnableClientState(GL_COLOR_ARRAY);        // Colors are used to render fog of war
-		glColorPointer(4,GL_UNSIGNED_BYTE,0,low_col);
-		glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
-		if (FLAT)
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);        // Colors are used to render fog of war
+        CHECK_GL();
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,low_col);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
+        CHECK_GL();
+        if (FLAT)
 		{
 			glTranslatef(0.0f, niv, 0.0f);
-			glVertexPointer( 3, GL_FLOAT, 0, low_vtx_flat);
-		}
+            CHECK_GL();
+            glVertexPointer( 3, GL_FLOAT, 0, low_vtx_flat);
+            CHECK_GL();
+        }
 		else
+        {
 			glVertexPointer( 3, GL_FLOAT, 0, low_vtx);
+            CHECK_GL();
+        }
 
 		glClientActiveTextureARB(GL_TEXTURE0_ARB );
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
+        CHECK_GL();
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
+        CHECK_GL();
 
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
+        gfx->glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
         low_tex->bind();
 
-		glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
+        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
+        CHECK_GL();
 
 		glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
 
 		glPopMatrix();
+        CHECK_GL();
 
 		gfx->unlock();
 	}
@@ -1254,20 +1296,29 @@ namespace TA3D
 	void MAP::draw_HD(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
 	{
 		glPushMatrix();
+        CHECK_GL();
 
 		gfx->lock();
 		if (FLAT)
+        {
 			glTranslatef(0.0f, 0.0f, sea_dec);
+            CHECK_GL();
+        }
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_LIGHTING);
-		if (!FLAT)
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        if (!FLAT)
 		{
             if (!tex.empty())
 				gfx->ReInitAllTex(true);
 			else
+            {
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		}
+                CHECK_GL();
+            }
+        }
 
 		// ------------------------------------------------------------------
 		// Beginning of visible area calculations
@@ -1383,7 +1434,8 @@ namespace TA3D
 		{
 			gfx->unlock();
 			glPopMatrix();
-			return;
+            CHECK_GL();
+            return;
 		}
 
 		x1 = Math::Max(x1, 0);
@@ -1400,7 +1452,10 @@ namespace TA3D
 		// ------------------------------------------------------------------
 
 		if (!FLAT)
+        {
 			glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+            CHECK_GL();
+        }
 
 		Vector3D flat[9];
 		if (FLAT)
@@ -1420,29 +1475,46 @@ namespace TA3D
 
         if (!tex.empty() && !depth_only)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glEnable(GL_TEXTURE_2D);
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            gfx->glActiveTexture(GL_TEXTURE0);
+            CHECK_GL();
+            gfx->glEnable(GL_TEXTURE_2D);
+            CHECK_GL();
+            glClientActiveTextureARB(GL_TEXTURE0_ARB);
+            CHECK_GL();
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            CHECK_GL();
 
 			if (!FLAT && enable_details)
 			{
-				glClientActiveTextureARB(GL_TEXTURE1_ARB);
-				glActiveTextureARB(GL_TEXTURE1_ARB );
-				glEnable(GL_TEXTURE_2D);
+                glClientActiveTextureARB(GL_TEXTURE1_ARB);
+                CHECK_GL();
+                gfx->glActiveTexture(GL_TEXTURE1);
+                CHECK_GL();
+                gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
                 details_tex->bind();
-				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-				glDisable(GL_TEXTURE_GEN_S);
-				glDisable(GL_TEXTURE_GEN_T);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glActiveTextureARB(GL_TEXTURE0_ARB );
-			}
+                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_GEN_S);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_GEN_T);
+                CHECK_GL();
+                gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                CHECK_GL();
+                gfx->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                CHECK_GL();
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                CHECK_GL();
+                gfx->glActiveTexture(GL_TEXTURE0);
+                CHECK_GL();
+            }
 		}
 
 		if (FLAT)
+        {
 			glTranslatef(cosf(t), 0.0f, sinf(t));
+            CHECK_GL();
+        }
         GfxTexture::Ptr old_tex = bloc[0].tex;
 		if (!depth_only)
             old_tex->bind();
@@ -1472,10 +1544,15 @@ namespace TA3D
 		uint16	index_size = 0;
 		bool	was_flat = false;
 		glDisableClientState(GL_NORMAL_ARRAY);		// we don't need normal data
-		glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
-		glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
-		glColorPointer(4,GL_UNSIGNED_BYTE,0,buf_c);
-		glVertexPointer( 3, GL_FLOAT, 0, buf_p);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
+        CHECK_GL();
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,buf_c);
+        CHECK_GL();
+        glVertexPointer( 3, GL_FLOAT, 0, buf_p);
+        CHECK_GL();
 
 		if (!FLAT && enable_details)
 		{
@@ -1497,7 +1574,9 @@ namespace TA3D
 		}
 
 		glClientActiveTextureARB(GL_TEXTURE0_ARB );
-		glTexCoordPointer(2, GL_FLOAT, 0, buf_t);
+        CHECK_GL();
+        glTexCoordPointer(2, GL_FLOAT, 0, buf_t);
+        CHECK_GL();
 
 //#define DEBUG_UNIT_POS
 //#define DEBUG_ENERGY
@@ -1725,8 +1804,11 @@ namespace TA3D
                 if (bloc[i].tex != old_tex || buf_size >= 500 || ox + 1 < x)
 				{
 					if (buf_size > 0)
+                    {
 						glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
-					buf_size = 0;
+                        CHECK_GL();
+                    }
+                    buf_size = 0;
 					index_size = 0;
 					was_flat = false;
 					if (old_tex != bloc[i].tex)
@@ -1937,27 +2019,36 @@ namespace TA3D
 			if (buf_size > 0)
 			{
 				glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
-				was_flat = false;
+                CHECK_GL();
+                was_flat = false;
 				index_size=0;
 				buf_size=0;
 			}
 		}
 		glDisableClientState(GL_COLOR_ARRAY);		// Couleurs(pour le brouillard de guerre)
+        CHECK_GL();
 
         detail_shader->release();
 
 		gfx->unlock();
 
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		glDisable(GL_TEXTURE_2D);
+        gfx->glActiveTexture(GL_TEXTURE1);
+        CHECK_GL();
+        glClientActiveTextureARB(GL_TEXTURE1_ARB);
+        CHECK_GL();
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
 
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+        gfx->glActiveTexture(GL_TEXTURE0);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+        CHECK_GL();
 
 		glPopMatrix();
-	}
+        CHECK_GL();
+    }
 
 	Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out) const			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
 	{
@@ -2108,29 +2199,48 @@ namespace TA3D
 			vertices1.push_back(M);		colors1.push_back(color);
 			vertices1.push_back(B);		colors1.push_back(color & mask);
 		}
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
+        gfx->glDisable(GL_DEPTH_TEST);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
 
-		glVertexPointer(3, GL_FLOAT, 0, &(vertices0.front()));
-		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors0.front()));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices0.size());
+        glVertexPointer(3, GL_FLOAT, 0, &(vertices0.front()));
+        CHECK_GL();
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors0.front()));
+        CHECK_GL();
+        gfx->glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices0.size());
+        CHECK_GL();
 
 		glVertexPointer(3, GL_FLOAT, 0, &(vertices1.front()));
-		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors1.front()));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices1.size());
+        CHECK_GL();
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors1.front()));
+        CHECK_GL();
+        gfx->glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices1.size());
+        CHECK_GL();
 
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-	}
+        gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
+        gfx->glEnable(GL_DEPTH_TEST);
+        CHECK_GL();
+        glDisableClientState(GL_VERTEX_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+    }
 
 	void WATER::draw(float t, bool shaded)
 	{
@@ -2171,12 +2281,13 @@ namespace TA3D
             CHECK_GL();
 			return;
 		}
-		glBegin(GL_QUADS);
+        glBegin(GL_QUADS);
 		glTexCoord2f(0.0f,0.0f);		glVertex3f(-map_w*0.5f,0.0f,-map_h*0.5f);
 		glTexCoord2f(1.0f,0.0f);		glVertex3f(map_w*0.5f,0.0f,-map_h*0.5f);
 		glTexCoord2f(1.0f,1.0f);		glVertex3f(map_w*0.5f,0.0f,map_h*0.5f);
 		glTexCoord2f(0.0f,1.0f);		glVertex3f(-map_w*0.5f,0.0f,map_h*0.5f);
 		glEnd();
+        CHECK_GL();
 
         gfx->glDisable( GL_TEXTURE_2D );
         CHECK_GL();

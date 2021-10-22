@@ -31,12 +31,15 @@ namespace TA3D
 	void FPSInfos::draw() const
 	{
 		// Display
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+        CHECK_GL();
         gfx->TA_font->print(1.0f, 1.0f, 0xFF000000U, toStr);
         gfx->TA_font->print(0.0f, 0.0f, 0xFFFFFFFFU, toStr);
-		glDisable(GL_BLEND);
-	}
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+    }
 
 
 

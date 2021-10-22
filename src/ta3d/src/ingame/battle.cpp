@@ -2530,8 +2530,9 @@ namespace TA3D
 
 	void Battle::draw2DMouseUserSelection()
 	{
-		glDisable(GL_TEXTURE_2D);
-		gfx->rect((float)pMouseRectSelection.x1 + 1.0f, (float)pMouseRectSelection.y1 + 1.0f,
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->rect((float)pMouseRectSelection.x1 + 1.0f, (float)pMouseRectSelection.y1 + 1.0f,
                   (float)pMouseRectSelection.x2 + 1.0f, (float)pMouseRectSelection.y2 + 1.0f, makeacol(0,0,0,0xFF));
 
 		gfx->rect((float)pMouseRectSelection.x1, (float)pMouseRectSelection.y1,

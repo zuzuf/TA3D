@@ -606,21 +606,34 @@ namespace TA3D
 		gfx->ReInitAllTex(true);
 
         gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
         gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
         gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
         gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
         gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
         gfx->glEnable(GL_BLEND);
+        CHECK_GL();
 
         glDisableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+        CHECK_GL();
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
         parttex->bind();
 
 		glVertexPointer( 3, GL_FLOAT, 0, point);
-		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
-		glColorPointer(4,GL_UNSIGNED_BYTE,0,color);
+        CHECK_GL();
+        glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
+        CHECK_GL();
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,color);
+        CHECK_GL();
 
 		for (int light_emitters = 0; light_emitters <= 1; ++light_emitters)
 		{
@@ -702,27 +715,37 @@ namespace TA3D
 				if (j >= 1023 )
 				{
                     gfx->glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
-					j = -1;
+                    CHECK_GL();
+                    j = -1;
 				}
 			}
 			if (j >= 0 )
+            {
                 gfx->glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
+                CHECK_GL();
+            }
 
             gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-		}
+            CHECK_GL();
+        }
 
 		pMutex.unlock();
 
         glDisableClientState(GL_NORMAL_ARRAY);
+        CHECK_GL();
         glDisableClientState(GL_VERTEX_ARRAY);				// Vertices
+        CHECK_GL();
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
         glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
 
         QMatrix4x4 projectionMatrix;
         QMatrix4x4 modelViewMatrix;
         cam->setView(projectionMatrix, modelViewMatrix);
 
         gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
 
         gfx->particle_shader->bind();
         float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
@@ -737,7 +760,9 @@ namespace TA3D
         gfx->particle_shader->enableAttributeArray(0);
 #ifdef GL_VERTEX_PROGRAM_POINT_SIZE
         gfx->glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);        // This is required for desktop OpenGL
+        CHECK_GL();
         gfx->glEnable(GL_POINT_SPRITE);
+        CHECK_GL();
 #endif
 
 		pMutex.lock();
@@ -749,12 +774,17 @@ namespace TA3D
 
 #ifdef GL_VERTEX_PROGRAM_POINT_SIZE
         gfx->glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        CHECK_GL();
         gfx->glDisable(GL_POINT_SPRITE);
+        CHECK_GL();
 #endif
         gfx->glDisable(GL_BLEND);
+        CHECK_GL();
         gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
         gfx->glEnable(GL_CULL_FACE);
-	}
+        CHECK_GL();
+    }
 
 	void PARTICLE_ENGINE::drawUW()
 	{
@@ -767,22 +797,34 @@ namespace TA3D
 
 #warning Under water rendering still needs work
 
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_BLEND);
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
 
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);				// Vertices
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        glDisableClientState(GL_NORMAL_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);				// Vertices
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
 
 		double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl };
 
         glClipPlane(GL_CLIP_PLANE1, eqn);
+        CHECK_GL();
         gfx->glEnable(GL_CLIP_PLANE1);
+        CHECK_GL();
 
         QMatrix4x4 projectionMatrix;
         QMatrix4x4 modelViewMatrix;
@@ -801,7 +843,9 @@ namespace TA3D
         gfx->particle_shader->enableAttributeArray(0);
 #ifdef GL_VERTEX_PROGRAM_POINT_SIZE
         gfx->glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);        // This is required for desktop OpenGL
+        CHECK_GL();
         gfx->glEnable(GL_POINT_SPRITE);
+        CHECK_GL();
 #endif
 
         pMutex.lock();
@@ -812,14 +856,20 @@ namespace TA3D
         gfx->particle_shader->release();
 
         gfx->glDisable(GL_CLIP_PLANE1);
+        CHECK_GL();
 
 #ifdef GL_VERTEX_PROGRAM_POINT_SIZE
         gfx->glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        CHECK_GL();
         gfx->glDisable(GL_POINT_SPRITE);
+        CHECK_GL();
 #endif
         gfx->glDisable(GL_BLEND);
+        CHECK_GL();
         gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
         gfx->glEnable(GL_CULL_FACE);
+        CHECK_GL();
     }
 
 	void PARTICLE_ENGINE::init(bool load)

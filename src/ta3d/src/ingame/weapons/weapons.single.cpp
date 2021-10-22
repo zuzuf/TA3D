@@ -650,7 +650,10 @@ namespace TA3D
 					break;
 				{
 					if (lp_CONFIG->shadow_quality >= 2)
-						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                    {
+                        glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                        CHECK_GL();
+                    }
 					Vector3D P(Pos);
 					float length = weapon_def->duration;
 					if (weapon_def->duration > stime)
@@ -658,8 +661,9 @@ namespace TA3D
 					if (dying && length > killtime)
 						length = killtime;
 					P = P - length * V;
-					glDisable(GL_LIGHTING);
-					int color0 = weapon_def->color[0];
+                    gfx->glDisable(GL_LIGHTING);
+                    CHECK_GL();
+                    int color0 = weapon_def->color[0];
 					int color1 = weapon_def->color[1];
 					float coef = (cosf(stime * 5.0f) + 1.0f) * 0.5f;
 					GLubyte r = (GLubyte)(coef * float(getr(color0)) + (1.0f - coef) * float(getr(color1)));
@@ -671,14 +675,18 @@ namespace TA3D
 					if (damage < 0.0f)
 						damage = float(weapon_def->damage);
 					Up = Math::Min(damage / 60.0f + float(weapon_def->firestarter) / 200.0f + float(weapon_def->areaofeffect) / 40.0f, 1.0f) * Up; // Variable width!!
-					glDisable(GL_CULL_FACE);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    gfx->glEnable(GL_BLEND);
+                    CHECK_GL();
+                    gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                    CHECK_GL();
 
                     if (!weapon_def->laserTex1)
 					{
-						glDisable(GL_TEXTURE_2D);
-						glBegin(GL_QUADS);
+                        gfx->glDisable(GL_TEXTURE_2D);
+                        CHECK_GL();
+                        glBegin(GL_QUADS);
 						glColor4ub(r,g,b,0);
 						glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);			glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
 						glColor4ub(r,g,b,0xFF);
@@ -688,44 +696,56 @@ namespace TA3D
 						glColor4ub(r,g,b,0);
 						glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);					glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
 						glEnd();
-					}
+                        CHECK_GL();
+                    }
 					else
 					{
 						byte a = byte(weapon_def->laserTex2 ? int(0xFF * coef) : 0xFF);
-						glEnable(GL_TEXTURE_2D);
+                        gfx->glEnable(GL_TEXTURE_2D);
+                        CHECK_GL();
                         weapon_def->laserTex1->bind();
 						glColor4ub(r,g,b,a);
-						glBegin(GL_QUADS);
+                        CHECK_GL();
+                        glBegin(GL_QUADS);
 							glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);
 							glTexCoord2f(1.0f, 0.0f);	glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
 							glTexCoord2f(1.0f, 1.0f);	glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);
 							glTexCoord2f(0.0f, 1.0f);	glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
 						glEnd();
+                        CHECK_GL();
 
 						if (a != 0xFF)
 						{
-							glDepthFunc(GL_LEQUAL);
-							a = byte(0xFF - a);
+                            gfx->glDepthFunc(GL_LEQUAL);
+                            CHECK_GL();
+                            a = byte(0xFF - a);
                             weapon_def->laserTex2->bind();
 							glColor4ub(r,g,b,a);
-							glBegin(GL_QUADS);
+                            CHECK_GL();
+                            glBegin(GL_QUADS);
 								glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);
 								glTexCoord2f(1.0f, 0.0f);	glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
 								glTexCoord2f(1.0f, 1.0f);	glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);
 								glTexCoord2f(0.0f, 1.0f);	glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
 							glEnd();
-							glDepthFunc(GL_LESS);
-						}
+                            CHECK_GL();
+                            gfx->glDepthFunc(GL_LESS);
+                            CHECK_GL();
+                        }
 					}
-					glDisable(GL_BLEND);
-					glEnable(GL_CULL_FACE);
-					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-				}
+                    gfx->glDisable(GL_BLEND);
+                    CHECK_GL();
+                    gfx->glEnable(GL_CULL_FACE);
+                    CHECK_GL();
+                    glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                    CHECK_GL();
+                }
 				break;
 			case RENDER_TYPE_MISSILE:					// Dessine le missile
 				if (weapon_def->model)
 				{
 					glTranslatef(Pos.x,Pos.y,Pos.z);
+                    CHECK_GL();
 
 					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
 					Dir.unit();
@@ -733,26 +753,38 @@ namespace TA3D
 					J.unit();
 					float theta = -acosf( Dir.z ) * RAD2DEG;
 					glRotatef( theta, J.x, J.y, J.z );
+                    CHECK_GL();
 
-					glEnable(GL_LIGHTING);
-					glEnable(GL_TEXTURE_2D);
-					glDisable(GL_CULL_FACE);
-					weapon_def->model->draw(0.0f);
-					glEnable(GL_CULL_FACE);
-				}
+                    gfx->glEnable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    weapon_def->model->draw(0.0f);
+                    gfx->glEnable(GL_CULL_FACE);
+                    CHECK_GL();
+                }
 				break;
 			case RENDER_TYPE_BITMAP:
 				if (lp_CONFIG->shadow_quality >= 2)
+                {
 					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				if (weapon_manager.cannonshell.nb_bmp > 0)
+                    CHECK_GL();
+                }
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
+                CHECK_GL();
+                if (weapon_manager.cannonshell.nb_bmp > 0)
 				{
 					anim_sprite = short(((int)(stime * 15.0f)) % weapon_manager.cannonshell.nb_bmp);
 					gfx->set_alpha_blending();
 					gfx->enable_model_shading();
-					glEnable(GL_TEXTURE_2D);
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
                     weapon_manager.cannonshell.glbmp[anim_sprite]->bind();
 					Vector3D A,B,C,D;
 					A = Pos + ((-0.5f * float(weapon_manager.cannonshell.h[anim_sprite] - weapon_manager.cannonshell.ofs_y[anim_sprite])) * Camera::inGame->up
@@ -769,7 +801,8 @@ namespace TA3D
 					glTexCoord2f(1.0f,1.0f);		glVertex3f(D.x,D.y,D.z);
 					glTexCoord2f(0.0f,1.0f);		glVertex3f(C.x,C.y,C.z);
 					glEnd();
-					gfx->unset_alpha_blending();
+                    CHECK_GL();
+                    gfx->unset_alpha_blending();
 					gfx->disable_model_shading();
 				}
 				else
@@ -780,14 +813,18 @@ namespace TA3D
 					glVertex3f(Pos.x+2.5f,Pos.y+2.5f,Pos.z);
 					glVertex3f(Pos.x-2.5f,Pos.y+2.5f,Pos.z);
 					glEnd();
-				}
-				glEnable(GL_LIGHTING);
-				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-				break;
+                    CHECK_GL();
+                }
+                gfx->glEnable(GL_LIGHTING);
+                CHECK_GL();
+                glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                CHECK_GL();
+                break;
 			case RENDER_TYPE_BOMB:
 				if (weapon_def->model)
 				{
 					glTranslatef(Pos.x,Pos.y,Pos.z);
+                    CHECK_GL();
 
 					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
 					Dir.unit();
@@ -795,18 +832,26 @@ namespace TA3D
 					J.unit();
 					float theta = -acosf( Dir.z ) * RAD2DEG;
 					glRotatef( theta, J.x, J.y, J.z );
+                    CHECK_GL();
 
-					glEnable(GL_LIGHTING);
-					glEnable(GL_TEXTURE_2D);
-					glDisable(GL_CULL_FACE);
-					weapon_def->model->draw(0.0f);
-					glEnable(GL_CULL_FACE);
-				}
+                    gfx->glEnable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    weapon_def->model->draw(0.0f);
+                    gfx->glEnable(GL_CULL_FACE);
+                    CHECK_GL();
+                }
 				break;
 			case RENDER_TYPE_LIGHTNING:
 				{
 					if (lp_CONFIG->shadow_quality >= 2)
+                    {
 						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                        CHECK_GL();
+                    }
 
 					Vector3D P = Pos;
 					float length = weapon_def->duration;
@@ -815,9 +860,11 @@ namespace TA3D
 					if (dying && length > killtime)
 						length = killtime;
 					P = P - length * V;
-					glDisable(GL_LIGHTING);
-					glDisable(GL_TEXTURE_2D);
-					int color0 = weapon_def->color[0];
+                    gfx->glDisable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glDisable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                    int color0 = weapon_def->color[0];
 					int color1 = weapon_def->color[1];
 					float coef = (cosf(stime) + 1.0f) * 0.5f;
 
@@ -825,7 +872,8 @@ namespace TA3D
 					GLubyte g = (GLubyte)(coef * float((color0 >> 8)  & 0xFF) + coef * float((color1 >> 8)  & 0xFF));
 					GLubyte b = (GLubyte)(coef * float(color0 & 0xFF) + coef * float(color1 & 0xFF));
 					glColor4ub(r, g, b, 0xFF);
-					glBegin(GL_LINE_STRIP);
+                    CHECK_GL();
+                    glBegin(GL_LINE_STRIP);
 
 					float x = 0.f;
 					float y = 0.f;
@@ -841,44 +889,64 @@ namespace TA3D
 						glVertex3f(Pos.x + (P.x - Pos.x) * float(i) / 9.0f + x, Pos.y + (P.y - Pos.y) * float(i) / 9.0f + y, Pos.z + (P.z - Pos.z) * float(i) / 9.0f + z);
 					}
 					glEnd();
-					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-				}
+                    CHECK_GL();
+                    glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                    CHECK_GL();
+                }
 				break;
 			case RENDER_TYPE_DGUN:			// Dessine le dgun
 				if (weapon_def->model)
 				{
 					glTranslatef(Pos.x,Pos.y,Pos.z);
+                    CHECK_GL();
 
 					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
 					Dir.unit();
 					Vector3D J(V * I);
 					J.unit();
 					glRotatef((float)(-acosf(Dir.z) * RAD2DEG), J.x, J.y, J.z);
+                    CHECK_GL();
 
-					glEnable(GL_LIGHTING);
-					glEnable(GL_TEXTURE_2D);
-					glDisable(GL_CULL_FACE);
-					weapon_def->model->draw(0.0f);
-					glEnable(GL_CULL_FACE);
-				}
+                    gfx->glEnable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    weapon_def->model->draw(0.0f);
+                    gfx->glEnable(GL_CULL_FACE);
+                    CHECK_GL();
+                }
 				break;
 			case RENDER_TYPE_GUN:			// Dessine une "balle"
 				if (lp_CONFIG->shadow_quality >= 2)
+                {
 					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_POINTS);
+                    CHECK_GL();
+                }
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glBegin(GL_POINTS);
 				glColor3ub(0xBF, 0xBF, 0xBF);
-				glVertex3f(Pos.x,Pos.y,Pos.z);
+                glVertex3f(Pos.x,Pos.y,Pos.z);
 				glEnd();
-				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-				break;
+                CHECK_GL();
+                glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                CHECK_GL();
+                break;
 			case RENDER_TYPE_PARTICLES:		// Dessine des particules
 				if (lp_CONFIG->shadow_quality >= 2)
+                {
 					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-				glDisable(GL_LIGHTING);
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_POINTS);
+                    CHECK_GL();
+                }
+                gfx->glDisable(GL_LIGHTING);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                glBegin(GL_POINTS);
 				glColor3ub(0xBF, 0xBF, 0xBF);
 				for (int i = 0; i < 10; ++i)
 				{
@@ -888,11 +956,14 @@ namespace TA3D
 						Pos.z + float(Math::RandomTable() % 201) * 0.01f - 1.0f);
 				}
 				glEnd();
-				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-				break;
+                CHECK_GL();
+                glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                CHECK_GL();
+                break;
 		}
 		glPopMatrix();
-	}
+        CHECK_GL();
+    }
 
 
 

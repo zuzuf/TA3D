@@ -439,17 +439,26 @@ namespace TA3D
 			return;
 		gfx->ReInitAllTex(true);
 		glAlphaFunc(GL_GREATER, 0.1f);
-		glEnable(GL_ALPHA_TEST);
+        CHECK_GL();
+        gfx->glEnable(GL_ALPHA_TEST);
+        CHECK_GL();
 
-		glDepthFunc(GL_LEQUAL);
+        gfx->glDepthFunc(GL_LEQUAL);
+        CHECK_GL();
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_LIGHTING);
-		glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF);
-		glEnable(GL_TEXTURE_2D);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		float sq2 = 1.0f / sqrtf(2.0f);
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        float sq2 = 1.0f / sqrtf(2.0f);
 		GLuint old = 0;
 		bool texture_loaded = false;
 
@@ -509,11 +518,17 @@ namespace TA3D
 		bool set = true;
 
 		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
-		glVertexPointer( 3, GL_FLOAT, 0, points);
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+        CHECK_GL();
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
+        CHECK_GL();
+        glVertexPointer( 3, GL_FLOAT, 0, points);
+        CHECK_GL();
 
 		DrawingTable DrawingTable;
 		QUAD_TABLE    quad_table;
@@ -590,22 +605,37 @@ namespace TA3D
 					{
 						set = true;
 						glDisableClientState(GL_NORMAL_ARRAY);
-						glDisableClientState(GL_COLOR_ARRAY);
-						glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-						glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
-						glVertexPointer( 3, GL_FLOAT, 0, points);
-					}
+                        CHECK_GL();
+                        glDisableClientState(GL_COLOR_ARRAY);
+                        CHECK_GL();
+                        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                        CHECK_GL();
+                        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                        CHECK_GL();
+                        glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
+                        CHECK_GL();
+                        glVertexPointer( 3, GL_FLOAT, 0, points);
+                        CHECK_GL();
+                    }
 
 					glPushMatrix();
-					glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
-					glScalef(dw,h,dw);
-					if (lp_CONFIG->shadow_quality >= 2)
+                    CHECK_GL();
+                    glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+                    CHECK_GL();
+                    glScalef(dw,h,dw);
+                    CHECK_GL();
+                    if (lp_CONFIG->shadow_quality >= 2)
+                    {
 						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-					glDrawRangeElements(GL_QUADS, 0, 17, 28,GL_UNSIGNED_BYTE,index);		// draw it
-					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-					glPopMatrix();
-				}
+                        CHECK_GL();
+                    }
+                    glDrawRangeElements(GL_QUADS, 0, 17, 28,GL_UNSIGNED_BYTE,index);		// draw it
+                    CHECK_GL();
+                    glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+                    CHECK_GL();
+                    glPopMatrix();
+                    CHECK_GL();
+                }
 				else
 				{
 						// no need to draw things we can't see
@@ -625,49 +655,82 @@ namespace TA3D
 				if (pFeature->m3d && pFeature->model != NULL)
 				{
                     if(feature[i].grey)
+                    {
                         glColor4ub( 127, 127, 127, 255 );
+                        CHECK_GL();
+                    }
                     else
+                    {
                         glColor4ub( 255, 255, 255, 255 );
-                    glEnable(GL_LIGHTING);
-                    glDisable(GL_BLEND);
+                        CHECK_GL();
+                    }
+                    gfx->glEnable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glDisable(GL_BLEND);
+                    CHECK_GL();
                     if(!pFeature->converted)				// To fix opacity with converted models
-                        glDisable(GL_ALPHA_TEST);
+                    {
+                        gfx->glDisable(GL_ALPHA_TEST);
+                        CHECK_GL();
+                    }
                     glPushMatrix();
+                    CHECK_GL();
                     glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+                    CHECK_GL();
                     if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
                     {
                         double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - feature[i].Pos.y };
                         glClipPlane(GL_CLIP_PLANE2, eqn);
+                        CHECK_GL();
                     }
                     glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
+                    CHECK_GL();
                     glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
+                    CHECK_GL();
                     float lt = t + float(feature[i].timeRef) * ticks2sec;
                     pFeature->model->draw(lt, NULL, false, false, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, !feature[i].grey);
 
                     if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
                     {
-                        glEnable(GL_CLIP_PLANE2);
-                        glEnable( GL_BLEND );
-                        glBlendFunc( GL_ONE, GL_ONE );
-                        glDepthFunc( GL_EQUAL );
+                        gfx->glEnable(GL_CLIP_PLANE2);
+                        CHECK_GL();
+                        gfx->glEnable( GL_BLEND );
+                        CHECK_GL();
+                        gfx->glBlendFunc( GL_ONE, GL_ONE );
+                        CHECK_GL();
+                        gfx->glDepthFunc( GL_EQUAL );
+                        CHECK_GL();
                         glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                        CHECK_GL();
                         pFeature->model->draw(lt, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
                         glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-                        glDepthFunc( GL_LESS );
-                        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                        glDisable(GL_CLIP_PLANE2);
+                        CHECK_GL();
+                        gfx->glDepthFunc( GL_LESS );
+                        CHECK_GL();
+                        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                        CHECK_GL();
+                        gfx->glDisable(GL_CLIP_PLANE2);
+                        CHECK_GL();
                     }
 
 
                     gfx->ReInitAllTex( true );
 
                     glPopMatrix();
-                    glEnable(GL_BLEND);
+                    CHECK_GL();
+                    gfx->glEnable(GL_BLEND);
+                    CHECK_GL();
                     if(!pFeature->converted)				// To fix opacity with converted models
-                        glEnable(GL_ALPHA_TEST);
-                    glDisable(GL_LIGHTING);
-                    glDisable(GL_CULL_FACE);
-                    glEnable(GL_TEXTURE_2D);
+                    {
+                        gfx->glEnable(GL_ALPHA_TEST);
+                        CHECK_GL();
+                    }
+                    gfx->glDisable(GL_LIGHTING);
+                    CHECK_GL();
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    CHECK_GL();
                     texture_loaded = false;
                     set = false;
 				}
@@ -676,6 +739,7 @@ namespace TA3D
 		pMutex.unlock();
 
 		glColor4ub( 255, 255, 255, 255 );
+        CHECK_GL();
 
 		gfx->ReInitAllTex( true );
 		gfx->enable_model_shading();
@@ -683,37 +747,57 @@ namespace TA3D
 		if (!gfx->getShadowMapMode())
 		{
 			glDisableClientState(GL_NORMAL_ARRAY);
-			if (HWLight::inGame)
+            CHECK_GL();
+            if (HWLight::inGame)
+            {
 				glNormal3fv( (GLfloat*)&(HWLight::inGame->Dir) );
-			glPolygonOffset(-1.0f,-1.0f);
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			quad_table.draw_all();
-			glDisable(GL_POLYGON_OFFSET_FILL);
-		}
+                CHECK_GL();
+            }
+            gfx->glPolygonOffset(-1.0f,-1.0f);
+            CHECK_GL();
+            gfx->glEnable(GL_POLYGON_OFFSET_FILL);
+            CHECK_GL();
+            quad_table.draw_all();
+            gfx->glDisable(GL_POLYGON_OFFSET_FILL);
+            CHECK_GL();
+        }
 
-		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        gfx->glDisable(GL_ALPHA_TEST);
+        CHECK_GL();
+        gfx->glEnable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
 
 		if (gfx->getShadowMapMode())
 		{
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(3.0f, 1.0f);
-		}
+            gfx->glEnable(GL_POLYGON_OFFSET_FILL);
+            CHECK_GL();
+            glPolygonOffset(3.0f, 1.0f);
+            CHECK_GL();
+        }
 
 		DrawingTable.draw_all();
 
 		if (gfx->getShadowMapMode())
-			glDisable(GL_POLYGON_OFFSET_FILL);
+        {
+            gfx->glDisable(GL_POLYGON_OFFSET_FILL);
+            CHECK_GL();
+        }
 
 		gfx->disable_model_shading();
 
-		glEnable(GL_CULL_FACE);
-		glDisable(GL_ALPHA_TEST);
-		glDepthFunc( GL_LESS );
-		glEnable(GL_TEXTURE_2D);
-	}
+        gfx->glEnable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDisable(GL_ALPHA_TEST);
+        CHECK_GL();
+        gfx->glDepthFunc( GL_LESS );
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+    }
 
 	void Features::move(const float dt, bool clean)
 	{
@@ -1022,8 +1106,9 @@ namespace TA3D
                                         White,
                                         I18N::Translate( pFeature->description ) );
         }
-		glDisable(GL_BLEND);
-	}
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+    }
 
 	void Features::delete_feature(const int index)
 	{
@@ -1224,41 +1309,65 @@ namespace TA3D
 
 		gfx->ReInitTexSys(true);
 
-		glDisable( GL_CULL_FACE );
-		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_ALPHA_TEST);
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glDisable( GL_CULL_FACE );
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_DEPTH_TEST);
+        CHECK_GL();
+        gfx->glDisable(GL_ALPHA_TEST);
+        CHECK_GL();
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
 
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_TEXTURE_2D);
-		if (!metal.empty())
+        CHECK_GL();
+        glDisableClientState(GL_COLOR_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_NORMAL_ARRAY);
+        CHECK_GL();
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        if (!metal.empty())
 		{
             icons[0]->bind();
 			glVertexPointer(3, GL_FLOAT, 0, &(metal.front()));
-			glTexCoordPointer(2, GL_FLOAT, 0, &(metalUV.front()));
-			glDrawArrays(GL_QUADS, 0, (GLsizei)metal.size());
-		}
+            CHECK_GL();
+            glTexCoordPointer(2, GL_FLOAT, 0, &(metalUV.front()));
+            CHECK_GL();
+            gfx->glDrawArrays(GL_QUADS, 0, (GLsizei)metal.size());
+            CHECK_GL();
+        }
 		if (!geothermal.empty())
 		{
             icons[1]->bind();
 			glVertexPointer(3, GL_FLOAT, 0, &(geothermal.front()));
-			glTexCoordPointer(2, GL_FLOAT, 0, &(geothermalUV.front()));
-			glDrawArrays(GL_QUADS, 0, (GLsizei)geothermal.size());
-		}
+            CHECK_GL();
+            glTexCoordPointer(2, GL_FLOAT, 0, &(geothermalUV.front()));
+            CHECK_GL();
+            gfx->glDrawArrays(GL_QUADS, 0, (GLsizei)geothermal.size());
+            CHECK_GL();
+        }
 		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        CHECK_GL();
 
-		glDisable(GL_BLEND);
-		glEnable( GL_CULL_FACE );
-		glEnable(GL_LIGHTING);
-		glEnable(GL_DEPTH_TEST);
-	}
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        gfx->glEnable( GL_CULL_FACE );
+        CHECK_GL();
+        gfx->glEnable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glEnable(GL_DEPTH_TEST);
+        CHECK_GL();
+    }
 
 } // namespace TA3D
 

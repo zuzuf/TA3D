@@ -262,12 +262,17 @@ namespace TA3D
 		}
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
 
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);
-		gfx->set_alpha_blending();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
+        gfx->set_alpha_blending();
 		cam.setView(true);
 		if (UW)
 		{
@@ -286,7 +291,8 @@ namespace TA3D
 			}
 		}
 		gfx->unset_alpha_blending();
-		glDepthMask(GL_TRUE);
+        gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
 
 		if (!UW && lp_CONFIG->explosion_particles && FXManager::currentParticleModel != NULL)
 		{
@@ -296,8 +302,9 @@ namespace TA3D
             renderQueue.draw_queue(FXManager::currentParticleModel->id);
 		}
 
-		glDisable(GL_TEXTURE_2D);
-		if (!UW)
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        if (!UW)
 			for (ListOfElectrics::iterator i = pElectrics.begin(); i != pElectrics.end(); ++i)
 				(*i).draw();
 
@@ -309,20 +316,31 @@ namespace TA3D
 		pMutex.lock();
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        CHECK_GL();
 
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-		for(int i = 0; i < max_fx; ++i)
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glDisable(GL_LIGHTING);
+        CHECK_GL();
+        gfx->glDisable(GL_CULL_FACE);
+        CHECK_GL();
+        gfx->glDisable(GL_DEPTH_TEST);
+        CHECK_GL();
+        gfx->glDepthMask(GL_FALSE);
+        CHECK_GL();
+        gfx->glEnable(GL_BLEND);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_ONE, GL_ONE);
+        CHECK_GL();
+        for(int i = 0; i < max_fx; ++i)
 			if (fx[i].playing)
 				fx[i].drawWaterDistortions();
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
+        gfx->glDepthMask(GL_TRUE);
+        CHECK_GL();
+        gfx->glEnable(GL_DEPTH_TEST);
+        CHECK_GL();
 
 		pMutex.unlock();
 	}

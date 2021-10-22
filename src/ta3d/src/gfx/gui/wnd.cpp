@@ -95,7 +95,9 @@ namespace TA3D
 				// Take scrolling into account
 				gfx->set_2D_clip_rectangle(x, y, width, height);
 				glPushMatrix();
-				glTranslatef(0.0f, float(-scrolling), 0.0f);
+                CHECK_GL();
+                glTranslatef(0.0f, float(-scrolling), 0.0f);
+                CHECK_GL();
 
 				// Background
 				doDrawWindowBackground(skin);
@@ -105,13 +107,16 @@ namespace TA3D
 				// bars are hidden by background
 				gfx->set_2D_clip_rectangle();
 				glPopMatrix();
+                CHECK_GL();
 
 				// Skin
 				doDrawWindowSkin(skin, focus, deg);
 
 				gfx->set_2D_clip_rectangle(x, y, width, height);
 				glPushMatrix();
-				glTranslatef(0.0f, float(-scrolling), 0.0f);
+                CHECK_GL();
+                glTranslatef(0.0f, float(-scrolling), 0.0f);
+                CHECK_GL();
 
 				// Gui Font
 				gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
@@ -136,7 +141,8 @@ namespace TA3D
 				else
 					gfx->set_2D_clip_rectangle();
 				glPopMatrix();
-				gui_font = gfx->ta3d_gui_font;
+                CHECK_GL();
+                gui_font = gfx->ta3d_gui_font;
 			}
 		}
 

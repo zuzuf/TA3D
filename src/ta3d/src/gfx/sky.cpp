@@ -168,6 +168,7 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(w, -w, w);
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(-w, -w, w);
 		glEnd();
+        CHECK_GL();
 
         tex[2]->bind();
 		glBegin(GL_QUADS);
@@ -176,6 +177,7 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(-w, -w, w);
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(-w, -w, -w);
 		glEnd();
+        CHECK_GL();
 
         tex[1]->bind();
 		glBegin(GL_QUADS);
@@ -184,6 +186,7 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(-w, -w, -w);
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(w, -w, -w);
 		glEnd();
+        CHECK_GL();
 
         tex[0]->bind();
 		glBegin(GL_QUADS);
@@ -192,6 +195,7 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(w, -w, -w);
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(w, -w, w);
 		glEnd();
+        CHECK_GL();
 
         tex[4]->bind();
 		glBegin(GL_QUADS);
@@ -200,6 +204,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(w, -w, -w);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(-w, -w, -w);
 		glEnd();
+        CHECK_GL();
 
         tex[5]->bind();
 		glBegin(GL_QUADS);
@@ -208,7 +213,8 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(-w, w, -w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(w, w, -w);
 		glEnd();
-	}
+        CHECK_GL();
+    }
 
 	void Sky::SkyData::load_tdf(const QString& filename)
 	{

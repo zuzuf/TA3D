@@ -1265,58 +1265,33 @@ namespace TA3D
                 gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 CHECK_GL();
                 glBegin(GL_QUADS);
-                CHECK_GL();
                 glColor4ub(red,green,0x00,0xFF);
-                CHECK_GL();
                 glVertex3f(-DX,0.0f,-DZ);			// First quad
-                CHECK_GL();
                 glVertex3f(DX,0.0f,-DZ);
-                CHECK_GL();
                 glColor4ub(red,green,0x00,0x00);
-                CHECK_GL();
                 glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
-                CHECK_GL();
                 glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
-                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-                CHECK_GL();
                 glVertex3f(-DX,0.0f,-DZ);			// Second quad
-                CHECK_GL();
                 glVertex3f(-DX,0.0f,DZ);
-                CHECK_GL();
                 glColor4ub(red,green,0x00,0x00);
-                CHECK_GL();
                 glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-                CHECK_GL();
                 glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
-                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-                CHECK_GL();
                 glVertex3f(DX,0.0f,-DZ);			// Third quad
-                CHECK_GL();
                 glVertex3f(DX,0.0f,DZ);
-                CHECK_GL();
                 glColor4ub(red,green,0x00,0x00);
-                CHECK_GL();
                 glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-                CHECK_GL();
                 glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
-                CHECK_GL();
 
 				glColor4ub(red,green,0x00,0xFF);
-                CHECK_GL();
                 glVertex3f(-DX,0.0f,DZ);			// Fourth quad
-                CHECK_GL();
                 glVertex3f(DX,0.0f,DZ);
-                CHECK_GL();
                 glColor4ub(red,green,0x00,0x00);
-                CHECK_GL();
                 glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-                CHECK_GL();
                 glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-                CHECK_GL();
                 glEnd();
                 CHECK_GL();
                 gfx->glDisable(GL_BLEND);

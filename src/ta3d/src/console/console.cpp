@@ -277,17 +277,24 @@ namespace TA3D
 		const float fsize = fnt->height();
 		const float maxh = fsize * static_cast<float>(pLastEntries.size()) * pVisible + 5.0f;
 
-		glEnable(GL_BLEND);		// Dessine le cadre de la console
-		glDisable(GL_TEXTURE_2D);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable(GL_BLEND);		// Dessine le cadre de la console
+        CHECK_GL();
+        gfx->glDisable(GL_TEXTURE_2D);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
 
         gfx->rectfill(0.0f, 0.0f, static_cast<float>(SCREEN_W), maxh, makeacol(192, 192, 155, 127));
         gfx->line(static_cast<float>(SCREEN_W), maxh, 0.0f, maxh, makeacol(192, 192, 155, 192));
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+        CHECK_GL();
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        CHECK_GL();
+        gfx->glEnable(GL_TEXTURE_2D);
+        CHECK_GL();
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+        CHECK_GL();
 
 		// Print all lines
 		float tableWidth = 80.0f;
@@ -342,7 +349,8 @@ namespace TA3D
 				pHistoryPos = int(pLastCommands.size());
 		}
 
-		glDisable(GL_BLEND);
+        gfx->glDisable(GL_BLEND);
+        CHECK_GL();
 
 		if (forceShow)
 		{

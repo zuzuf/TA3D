@@ -250,21 +250,21 @@ namespace TA3D
 
     void GfxTexture::draw(const float x1, const float y1, const uint32 col, const float scale)
     {
-        glDisable(GL_LIGHTING);
+        gfx->glDisable(GL_LIGHTING);
         CHECK_GL();
         gfx->drawtexture(this, x1, y1, x1 + scale * float(width()), y1 + scale * float(height()), col);
     }
 
     void GfxTexture::drawCentered(const float x1, const float y1, const uint32 col, const float scale)
     {
-        glDisable(GL_LIGHTING);
+        gfx->glDisable(GL_LIGHTING);
         CHECK_GL();
         gfx->drawtexture(this, x1 - 0.5f * scale * float(width()), y1 - 0.5f * scale * float(height()), x1 + 0.5f * scale * float(width()), y1 + 0.5f * scale * float(height()), col);
     }
 
     void GfxTexture::drawRotated(const float x1, const float y1, const float angle, const uint32 col, const float scale)
     {
-        glDisable(GL_LIGHTING);
+        gfx->glDisable(GL_LIGHTING);
         CHECK_GL();
         glPushMatrix();
         CHECK_GL();

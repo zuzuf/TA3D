@@ -1010,12 +1010,16 @@ namespace TA3D
 
 		Matrix M;
 		glPushMatrix();
-		if (on_radar) // for mega zoom, draw only an icon
+        CHECK_GL();
+        if (on_radar) // for mega zoom, draw only an icon
 		{
-			glDisable(GL_DEPTH_TEST);
-			glTranslatef( render.Pos.x, Math::Max(render.Pos.y, the_map->sealvl + 5.0f), render.Pos.z);
-			glEnable(GL_TEXTURE_2D);
-			int unit_nature = ICON_UNKNOWN;
+            gfx->glDisable(GL_DEPTH_TEST);
+            CHECK_GL();
+            glTranslatef( render.Pos.x, Math::Max(render.Pos.y, the_map->sealvl + 5.0f), render.Pos.z);
+            CHECK_GL();
+            gfx->glEnable(GL_TEXTURE_2D);
+            CHECK_GL();
+            int unit_nature = ICON_UNKNOWN;
 			// In orthographic mode we need another formula
 			const float size = lp_CONFIG->ortho_camera
 						 ? Camera::inGame->zoomFactor * 9.0f
@@ -1056,10 +1060,13 @@ namespace TA3D
             const float sizew = size * (float)units->icons[ unit_nature ]->width() / 24.0f;
             const float sizeh = size * (float)units->icons[ unit_nature ]->height() / 24.0f;
             units->icons[ unit_nature ]->bind();
-			glDisable( GL_CULL_FACE );
-			glDisable(GL_LIGHTING);
-			glTranslatef( model->center.x, model->center.y, model->center.z );
-			const Vector3D side = Camera::inGame->side;
+            gfx->glDisable( GL_CULL_FACE );
+            CHECK_GL();
+            gfx->glDisable(GL_LIGHTING);
+            CHECK_GL();
+            glTranslatef( model->center.x, model->center.y, model->center.z );
+            CHECK_GL();
+            const Vector3D side = Camera::inGame->side;
 			const Vector3D up = Camera::inGame->up;
             if (!Math::Zero(player_color[player_color_map[owner_id] * 3])
                 || !Math::Zero(player_color[player_color_map[owner_id] * 3 + 1])
@@ -1069,70 +1076,95 @@ namespace TA3D
 						  player_color[player_color_map[owner_id] * 3 + 1],
 						  player_color[player_color_map[owner_id] * 3 + 2],
 						  1.0f);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glBegin(GL_QUADS);
+                CHECK_GL();
+                gfx->glEnable(GL_BLEND);
+                CHECK_GL();
+                gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                CHECK_GL();
+                glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);		gfx->loadVertex(-sizew * side + sizeh * up);
 				glTexCoord2f(1.0f, 0.0f);		gfx->loadVertex(sizew * side + sizeh * up);
 				glTexCoord2f(1.0f, 1.0f);		gfx->loadVertex(sizew * side - sizeh * up);
 				glTexCoord2f(0.0f, 1.0f);		gfx->loadVertex(-sizew * side - sizeh * up);
 				glEnd();
-				glDisable(GL_BLEND);
-			}
+                CHECK_GL();
+                gfx->glDisable(GL_BLEND);
+                CHECK_GL();
+            }
 			else
 			{								// If it's black, then invert colors
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				glDisable(GL_TEXTURE_2D);
-				glDisable(GL_BLEND);
-				glBegin(GL_QUADS);
+                CHECK_GL();
+                gfx->glDisable(GL_TEXTURE_2D);
+                CHECK_GL();
+                gfx->glDisable(GL_BLEND);
+                CHECK_GL();
+                glBegin(GL_QUADS);
 				gfx->loadVertex(-sizew * side + sizeh * up);
 				gfx->loadVertex(sizew * side + sizeh * up);
 				gfx->loadVertex(sizew * side - sizeh * up);
 				gfx->loadVertex(-sizew * side - sizeh * up);
 				glEnd();
-				glEnable(GL_TEXTURE_2D);
-				glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-				glEnable(GL_BLEND);
-				glBegin(GL_QUADS);
+                CHECK_GL();
+                gfx->glEnable(GL_TEXTURE_2D);
+                CHECK_GL();
+                gfx->glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+                CHECK_GL();
+                gfx->glEnable(GL_BLEND);
+                CHECK_GL();
+                glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);		gfx->loadVertex(-sizew * side + sizeh * up);
 				glTexCoord2f(1.0f, 0.0f);		gfx->loadVertex(sizew * side + sizeh * up);
 				glTexCoord2f(1.0f, 1.0f);		gfx->loadVertex(sizew * side - sizeh * up);
 				glTexCoord2f(0.0f, 1.0f);		gfx->loadVertex(-sizew * side - sizeh * up);
 				glEnd();
-				glDisable(GL_BLEND);
-			}
-			glEnable( GL_CULL_FACE );
-			if (owner_id == players.local_human_id && sel)
+                CHECK_GL();
+                gfx->glDisable(GL_BLEND);
+                CHECK_GL();
+            }
+            gfx->glEnable( GL_CULL_FACE );
+            CHECK_GL();
+            if (owner_id == players.local_human_id && sel)
 			{
-                glDisable( GL_TEXTURE_2D );
+                gfx->glDisable( GL_TEXTURE_2D );
+                CHECK_GL();
                 glColor3ub(0xFF,0xFF,0);
+                CHECK_GL();
                 glBegin(GL_LINE_LOOP);
                 gfx->loadVertex(-sizew * side + sizeh * up);
                 gfx->loadVertex(sizew * side + sizeh * up);
                 gfx->loadVertex(sizew * side - sizeh * up);
                 gfx->loadVertex(-sizew * side - sizeh * up);
                 glEnd();
+                CHECK_GL();
             }
-			glEnable(GL_DEPTH_TEST);
-		}
+            gfx->glEnable(GL_DEPTH_TEST);
+            CHECK_GL();
+        }
 		else
 			if (visible && model)
 			{
 				// Set time origin to our birth date
 				t -= birthTime;
 				glTranslatef( render.Pos.x, render.Pos.y, render.Pos.z );
+                CHECK_GL();
 
 				if (lp_CONFIG->underwater_bright && the_map->water && render.Pos.y < the_map->sealvl)
 				{
 					double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - render.Pos.y };
-					glClipPlane(GL_CLIP_PLANE2, eqn);
-				}
+                    glClipPlane(GL_CLIP_PLANE2, eqn);
+                    CHECK_GL();
+                }
 
 				glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
-				glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
-				glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
-				const float scale = pType->Scale;
+                CHECK_GL();
+                glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
+                CHECK_GL();
+                glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
+                CHECK_GL();
+                const float scale = pType->Scale;
 				glScalef(scale,scale,scale);
+                CHECK_GL();
 
 				//            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 				M = RotateYZX(render.Angle.y * DEG2RAD,
@@ -1295,6 +1327,7 @@ namespace TA3D
 
 				const bool old_mode = gfx->getShadowMapMode();
                 glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                CHECK_GL();
 
                 if (Math::Zero(build_percent_left))
 				{
@@ -1302,26 +1335,34 @@ namespace TA3D
 						t = 0.0f;
 					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
-					glDisable(GL_CULL_FACE);
-					the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, cloaked, src, src_data);
-					glEnable(GL_CULL_FACE);
-					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
+                    gfx->glDisable(GL_CULL_FACE);
+                    CHECK_GL();
+                    the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, cloaked, src, src_data);
+                    gfx->glEnable(GL_CULL_FACE);
+                    CHECK_GL();
+                    if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						gfx->set_color( 0xFFFFFFFF );
                     if (height_line && h>1.0f && pType->canfly) // For flying units, draw a line that shows how high is the unit
 					{
 						glPopMatrix();
-						glPushMatrix();
-						glDisable(GL_TEXTURE_2D);
-						glDisable(GL_LIGHTING);
-						glColor3ub(0xFF,0xFF,0);
-						glBegin(GL_LINES);
+                        CHECK_GL();
+                        glPushMatrix();
+                        CHECK_GL();
+                        gfx->glDisable(GL_TEXTURE_2D);
+                        CHECK_GL();
+                        gfx->glDisable(GL_LIGHTING);
+                        CHECK_GL();
+                        glColor3ub(0xFF,0xFF,0);
+                        CHECK_GL();
+                        glBegin(GL_LINES);
 						for (float y = render.Pos.y ; y > render.Pos.y - h ; y -= 10.0f)
 						{
 							glVertex3f(render.Pos.x, y, render.Pos.z);
 							glVertex3f(render.Pos.x, y - 5.0f, render.Pos.z);
 						}
 						glEnd();
-					}
+                        CHECK_GL();
+                    }
 				}
 				else
 				{
@@ -1332,18 +1373,24 @@ namespace TA3D
 						double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h * (33.0f - build_percent_left) * 0.033333f};
 
 						glClipPlane(GL_CLIP_PLANE0, eqn);
-						glEnable(GL_CLIP_PLANE0);
-						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
+                        CHECK_GL();
+                        gfx->glEnable(GL_CLIP_PLANE0);
+                        CHECK_GL();
+                        the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
 
 						eqn[1] = -eqn[1];	eqn[3] = -eqn[3];
 						glClipPlane(GL_CLIP_PLANE0, eqn);
-						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
-						glDisable(GL_CLIP_PLANE0);
+                        CHECK_GL();
+                        the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
+                        gfx->glDisable(GL_CLIP_PLANE0);
+                        CHECK_GL();
 
-						glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
+                        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+                        CHECK_GL();
+                        the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 						glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-					}
+                        CHECK_GL();
+                    }
 					else
 					{
 						if (build_percent_left <= 66.0f)
@@ -1352,39 +1399,56 @@ namespace TA3D
 							double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h * (66.0f - build_percent_left) * 0.033333f};
 
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-							glClipPlane(GL_CLIP_PLANE0, eqn);
-							glEnable(GL_CLIP_PLANE0);
-							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
+                            CHECK_GL();
+                            glClipPlane(GL_CLIP_PLANE0, eqn);
+                            CHECK_GL();
+                            gfx->glEnable(GL_CLIP_PLANE0);
+                            CHECK_GL();
+                            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+                            CHECK_GL();
+                            the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+                            CHECK_GL();
 
 							eqn[1] = -eqn[1];	eqn[3] = -eqn[3];
 							glClipPlane(GL_CLIP_PLANE0, eqn);
-							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
-							glDisable(GL_CLIP_PLANE0);
-						}
+                            CHECK_GL();
+                            the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
+                            gfx->glDisable(GL_CLIP_PLANE0);
+                            CHECK_GL();
+                        }
 						else
 						{
 							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
+                            CHECK_GL();
+                            the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-						}
+                            CHECK_GL();
+                        }
 					}
 				}
 
 				if (lp_CONFIG->underwater_bright && the_map->water && render.Pos.y < the_map->sealvl)
 				{
 					gfx->setShadowMapMode(true);
-					glEnable(GL_CLIP_PLANE2);
+                    gfx->glEnable(GL_CLIP_PLANE2);
+                    CHECK_GL();
 
-					glEnable( GL_BLEND );
-					glBlendFunc( GL_ONE, GL_ONE );
-					glDepthFunc( GL_EQUAL );
-					glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-					the_model->draw(t, &render.Anim, false, true, false, 0, NULL, NULL, NULL, 0.0f,NULL, false, owner_id, false);
+                    gfx->glEnable( GL_BLEND );
+                    CHECK_GL();
+                    gfx->glBlendFunc( GL_ONE, GL_ONE );
+                    CHECK_GL();
+                    gfx->glDepthFunc( GL_EQUAL );
+                    CHECK_GL();
+                    glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                    CHECK_GL();
+                    the_model->draw(t, &render.Anim, false, true, false, 0, NULL, NULL, NULL, 0.0f,NULL, false, owner_id, false);
 					glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-					glDepthFunc( GL_LESS );
-					glDisable( GL_BLEND );
+                    CHECK_GL();
+                    gfx->glDepthFunc( GL_LESS );
+                    CHECK_GL();
+                    gfx->glDisable( GL_BLEND );
+                    CHECK_GL();
 
 					glDisable(GL_CLIP_PLANE2);
 				}
@@ -1398,7 +1462,8 @@ namespace TA3D
 			}
 		drawing = false;
 		glPopMatrix();
-	}
+        CHECK_GL();
+    }
 
 	void Unit::explode()
 	{
