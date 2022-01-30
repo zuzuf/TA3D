@@ -1722,7 +1722,7 @@ namespace TA3D
 		{
 			for (unsigned int i = 0; i < 7; ++i)
 			{
-				glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                glActiveTexture(GL_TEXTURE0 + i);
                 CHECK_GL();
                 ReInitTexSys();
 				glClientActiveTexture(GL_TEXTURE0_ARB + i);
@@ -1735,7 +1735,7 @@ namespace TA3D
                     CHECK_GL();
                 }
             }
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+            glActiveTexture(GL_TEXTURE0);
             CHECK_GL();
             glClientActiveTexture(GL_TEXTURE0_ARB);
             CHECK_GL();

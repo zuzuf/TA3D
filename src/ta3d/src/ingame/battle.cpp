@@ -992,7 +992,7 @@ namespace TA3D
 			if (mouse_b != 1 && omb3 == 1 && !TA3D_SHIFT_PRESSED && (!IsOnGUI || IsOnMinimap))
 				current_order = SIGNAL_ORDER_NONE;
 
-			//---------------------------------	Code de sÃ©lection d'unitÃ©s
+            //---------------------------------	Unit selection code
 
 			if (!IsOnGUI)
 			{
@@ -1268,7 +1268,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (TA3D_CTRL_PRESSED) // Formation de groupes d'unitÃ©s
+                        if (TA3D_CTRL_PRESSED) // Form unit groups
 						{
 							int grpe = -1;
 							if (key[KEY_0])	grpe = 0;
@@ -1297,7 +1297,7 @@ namespace TA3D
 									}
 								}
 							}
-						}
+                        }
 						else
 						{
 							if (key[KEY_ALT]) // Restauration de groupes d'unitÃ©s

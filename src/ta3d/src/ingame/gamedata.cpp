@@ -142,7 +142,7 @@ namespace TA3D
 			ai_level[i] = args[9 + i * 7];
             energy[i] = args[10 + i * 7].toInt(nullptr, 0);
             metal[i] = args[11 + i * 7].toInt(nullptr, 0);
-            team[i] = (uint8)args[12 + i * 7].toInt(nullptr, 0);
+            team[i] = (uint16)args[12 + i * 7].toInt(nullptr, 0);
 		}
 	}
 } // namespace TA3D
