@@ -139,6 +139,8 @@ namespace TA3D
 
     bool GfxTexture::bind()
     {
+        if (this == nullptr)    // This is ugly but avoids checking it everywhere
+            return false;
         gfx->glBindTexture(m_target, m_handle);
         CHECK_GL();
         return true;
