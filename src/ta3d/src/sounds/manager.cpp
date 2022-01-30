@@ -338,6 +338,7 @@ namespace Audio
         {
             disconnect(pMixer);
             pOutput->stop();
+            pMixer->setSink(NULL);
             pOutput->deleteLater();
         }
         if (pMixer)
